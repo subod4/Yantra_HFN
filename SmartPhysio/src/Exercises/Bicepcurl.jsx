@@ -244,6 +244,8 @@ const ExercisePose = () => {
   const handleStopCamera = async () => {
     if (camera) camera.stop();
     const token = localStorage.getItem("jwtToken");
+    console.log("Saving session data...");
+    console.log(token);
     if (!token) {
       setSaveError("Authentication required");
       navigate("/login");
