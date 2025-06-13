@@ -73,7 +73,7 @@ const Chat = () => {
 
             // Save recommendation to Express API (port 8000)
             setSaving(true);
-            const saveResponse = await fetch('http://localhost:8000/api/recommendations/save', {
+            const saveResponse = await fetch('http://localhost:8000/recommendations/save', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
