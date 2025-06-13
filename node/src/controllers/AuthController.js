@@ -26,7 +26,6 @@ const signup = async (req,res)=>{
 const login = async (req,res)=>{
     try {
         const{email, password} = req.body;
-        console.log(req.body);
         const user = await UserModel.findOne({email});
         const errorMsg = 'Email or Password is wrong';
         console.log(user)
