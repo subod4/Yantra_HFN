@@ -4,7 +4,7 @@ import { Pose } from "@mediapipe/pose";
 import * as cam from "@mediapipe/camera_utils";
 import bicep from "/bicep.mp4";
 
-const FEEDBACK_INTERVAL = 5000; // ms
+const FEEDBACK_INTERVAL = 3000; // ms
 
 const ExercisePose = () => {
   const videoRef = useRef(null);
