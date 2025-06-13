@@ -114,12 +114,12 @@ function Footer() {
           <p className="text-[#555555] dark:text-gray-400">
             Made with ❤️ by{' '}
             <a
-              href="#JHOLA_G"
+              href="#YANTRA"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text hover:opacity-80 transition duration-300"
             >
-              JHOLA_G
+              YANTRA
             </a>
           </p>
           <p className="text-[#555555] dark:text-gray-400 mt-2">
