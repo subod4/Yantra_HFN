@@ -18,7 +18,7 @@ const Dashboard = () => {
           return;
         }
 
-        const recResponse = await fetch('http://localhost:8000/api/recommendations', {
+        const recResponse = await fetch('http://localhost:8000/recommendations', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -67,7 +67,7 @@ const Dashboard = () => {
   const deleteRecommendation = async (recId) => {
     try {
       const token = localStorage.getItem('jwtToken');
-      const response = await fetch(`http://localhost:8000/api/recommendations/${recId}`, {
+      const response = await fetch(`http://localhost:8000/recommendations/${recId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
