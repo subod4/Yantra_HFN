@@ -48,7 +48,7 @@ const Chat = () => {
             const token = localStorage.getItem('jwtToken');
 
             // Fetch exercise suggestions from Flask API (port 5000)
-            const response = await fetch('http://localhost:5000/api/suggest-exercises', {
+            const response = await fetch('http://localhost:4000/api/suggest-exercises', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
