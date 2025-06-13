@@ -297,21 +297,26 @@ const ExercisePose = () => {
 
 
   const drawArmPose = (results, canvasCtx) => {
-    // ... (This function remains the same)
     const landmarks = results.poseLandmarks;
     if (!landmarks) return;
     canvasCtx.save();
     canvasCtx.lineWidth = 5;
     canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    // Helper to draw a line between two points
     const drawLine = (start, end) => {
       canvasCtx.beginPath();
       canvasCtx.moveTo(landmarks[start].x * 640, landmarks[start].y * 480);
       canvasCtx.lineTo(landmarks[end].x * 640, landmarks[end].y * 480);
       canvasCtx.stroke();
     };
+    // Draw right arm (shoulder-elbow-wrist)
     drawLine(12, 14);
     drawLine(14, 16);
-    [12, 14, 16].forEach((index) => {
+    // Draw left arm (shoulder-elbow-wrist)
+    drawLine(11, 13);
+    drawLine(13, 15);
+    // Draw joints for both arms
+    [12, 14, 16, 11, 13, 15].forEach((index) => {
       const lm = landmarks[index];
       canvasCtx.beginPath();
       canvasCtx.arc(lm.x * 640, lm.y * 480, 7, 0, 2 * Math.PI);
