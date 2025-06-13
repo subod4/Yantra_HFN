@@ -3,20 +3,11 @@ const ExerciseSession = require("../models/ExcerciseSession");
 
 const createExcerciseSession = async (req, res) => {
   try {
-    const { userId, ...rest } = req.body;
+    const { ...sessionData } = req.body;
 
-    // Check if userId from body matches authenticated user ID
-    if (!userId || userId !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "User ID mismatch or not authorized to create session",
-      });
-    }
-
-    // Proceed to create the session
     const session = new ExerciseSession({
-      userId,
-      ...rest,
+      userId: req.user._id, // assign directly here
+      ...sessionData
     });
 
     await session.save();
@@ -33,6 +24,7 @@ const createExcerciseSession = async (req, res) => {
     });
   }
 };
+
 
 const getExcerciseSessions = async (req, res) => {
   try {

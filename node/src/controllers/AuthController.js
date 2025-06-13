@@ -5,9 +5,9 @@ const jwt = require('jsonwebtoken')
 const signup = async (req,res)=>{
     try {
         const{name, email, password} = req.body;
-        console.log(req.body);
-        const user = await UserModel.findOne({email});
-        console.log(user);
+    
+    const user = await UserModel.findOne({email});
+
         if (user) {
             return res.status(409)
                 .json({message : 'User already exist, you can login', success: false});
@@ -26,28 +26,23 @@ const signup = async (req,res)=>{
 const login = async (req,res)=>{
     try {
         const{email, password} = req.body;
-        console.log(req.body);
         const user = await UserModel.findOne({email});
         const errorMsg = 'Email or Password is wrong';
-        console.log(user)
         if (!user) {
             return res.status(403)
                 .json({message :errorMsg , success: false});
         }
         const isPassEqual = await bcrypt.compare(password, user.password)
-console.log(isPassEqual)
         if(!isPassEqual){
             return res.status(403)
                 .json({message :errorMsg , success: false});
 
         }
-        console.log("I am here")
         const jwtToken = jwt.sign(
             {email: user.email, _id:user._id},
             process.env.JWT_SECRET,
             {expiresIn: '24h'}
         )
-console.log(jwtToken)
 
         res.status(200)
             .json({message: "Login Successfully", 
