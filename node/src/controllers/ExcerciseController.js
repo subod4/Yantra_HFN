@@ -9,31 +9,52 @@ const createExcerciseSession = async (req, res) => {
     if (!userId || userId !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
-        message: "User ID mismatch or not authorized to create session"
+        message: "User ID mismatch or not authorized to create session",
       });
     }
 
     // Proceed to create the session
     const session = new ExerciseSession({
       userId,
-      ...rest
+      ...rest,
     });
 
     await session.save();
 
     res.status(201).json({
       success: true,
-      data: session
+      data: session,
     });
   } catch (error) {
     console.error("Error creating exercise session:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to save session"
+      error: "Failed to save session",
+    });
+  }
+};
+
+const getExcerciseSessions = async (req, res) => {
+  try {
+    const sessions = await ExerciseSession.find({ userId: req.user._id })
+      .sort({ date: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: sessions.length,
+      data: sessions,
+    });
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server error",
     });
   }
 };
 
 module.exports = {
-  createExcerciseSession
+  createExcerciseSession,
+  getExcerciseSessions,
 };
