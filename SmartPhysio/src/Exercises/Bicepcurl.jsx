@@ -6,6 +6,22 @@ import bicep from "/bicep.mp4";
 
 const FEEDBACK_INTERVAL = 3000; // ms
 
+// Helper function to draw a rounded rectangle.
+const drawRoundedRect = (ctx, x, y, width, height, radius) => {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+};
+
+
 const ExercisePose = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -35,7 +51,6 @@ const ExercisePose = () => {
   const stageRef = useRef(stage);
   const formQualityCounts = useRef({ poor: 0, fair: 0, good: 0 });
 
-  // New state for TTS and live feedback
   const [speakingText, setSpeakingText] = useState("");
   const lastFeedbackSent = useRef(Date.now());
   const latestPoseData = useRef(null);
@@ -44,26 +59,23 @@ const ExercisePose = () => {
     stageRef.current = stage;
   }, [stage]);
 
-  // Effect for sending live feedback at intervals
   useEffect(() => {
     if (!isCameraActive || isPaused) return;
-
     const interval = setInterval(() => {
       if (latestPoseData.current) {
         sendLiveFeedback(latestPoseData.current);
       }
     }, FEEDBACK_INTERVAL);
-
     return () => clearInterval(interval);
   }, [isCameraActive, isPaused]);
 
-  // Mediapipe initialization
   useEffect(() => {
     let cameraInstance;
     let timerInterval;
     let poseInstance;
 
     const loadPoseLibrary = async () => {
+      // ... (rest of the Mediapipe loading logic remains the same)
       try {
         const poseScript = document.createElement("script");
         poseScript.src = "https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js";
@@ -90,19 +102,22 @@ const ExercisePose = () => {
 
           poseInstance.onResults((results) => {
             const canvasElement = canvasRef.current;
+            if (!canvasElement) return;
             const canvasCtx = canvasElement.getContext("2d");
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
             if (results.poseLandmarks) {
+              const metrics = calculateExercise(results);
               drawArmPose(results, canvasCtx);
-              calculateExercise(results);
-
-              // Capture all raw landmarks for sending to backend
+              if (metrics) {
+                // Call the new modern drawing function
+                drawModernProgressBars(canvasCtx, metrics);
+              }
               latestPoseData.current = {
                 exercise: "bicep curl",
                 rep: repCount,
                 stage,
-                landmarks: results.poseLandmarks, // Send all raw landmark data
+                landmarks: results.poseLandmarks,
                 timestamp: Date.now(),
               };
             } else {
@@ -139,7 +154,6 @@ const ExercisePose = () => {
       loadPoseLibrary();
     }
 
-
     return () => {
       if (cameraInstance) cameraInstance.stop();
       if (poseInstance) poseInstance.close();
@@ -147,91 +161,175 @@ const ExercisePose = () => {
     };
   }, [isCameraActive, isPaused]);
 
-  // Angle calculation utility
   const calculateAngle = (a, b, c) => {
     const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
     let angle = Math.abs((radians * 180.0) / Math.PI);
     return angle > 180 ? 360 - angle : angle;
   };
 
-  // Exercise analysis with velocity and energy
   const calculateExercise = (results) => {
+    // ... (This function remains the same as your previous version)
     const landmarks = results.poseLandmarks;
-    if (!landmarks) return;
-
+    if (!landmarks) return { elbowAngle: 0, currentVelocity: 0 };
     const [rs, re, rw] = [12, 14, 16].map((i) => landmarks[i]);
-    if (!rs || !re || !rw) return;
-
+    if (!rs || !re || !rw) return { elbowAngle: 0, currentVelocity: 0 };
     const elbowAngle = calculateAngle(rs, re, rw);
-    const upperArmAngle = calculateAngle(rs, re, landmarks[24]);
     const currentTimestamp = performance.now();
-
+    let currentVelocity = 0;
     if (prevElbowAngleRef.current !== null && prevTimestampRef.current !== null) {
       const deltaAngle = elbowAngle - prevElbowAngleRef.current;
       const deltaTime = (currentTimestamp - prevTimestampRef.current) / 1000;
-      const angularVelocity = Math.abs(deltaAngle / deltaTime);
-      setVelocity(angularVelocity.toFixed(1));
-
-      const armMass = 2;
-      const gravity = 9.81;
-      const armLength = 0.3;
-      const heightChange = armLength * (1 - Math.cos(elbowAngle * Math.PI / 180));
-      const workPerRep = armMass * gravity * heightChange;
-      if (stageRef.current === "up" && elbowAngle < 90 && deltaAngle < 0) {
-        setEnergy((prev) => prev + workPerRep);
+      if (deltaTime > 0) {
+        const angularVelocity = Math.abs(deltaAngle / deltaTime);
+        currentVelocity = angularVelocity;
+        setVelocity(angularVelocity.toFixed(1));
+        const armMass = 2, gravity = 9.81, armLength = 0.3;
+        const heightChange = armLength * (1 - Math.cos(elbowAngle * Math.PI / 180));
+        const workPerRep = armMass * gravity * heightChange;
+        if (stageRef.current === "up" && elbowAngle < 90 && deltaAngle < 0) {
+          setEnergy((prev) => prev + workPerRep);
+        }
       }
     }
-
     prevElbowAngleRef.current = elbowAngle;
     prevTimestampRef.current = currentTimestamp;
-
     let newStage = stageRef.current;
     if (elbowAngle < 90) newStage = "up";
     else if (elbowAngle > 160) newStage = "down";
-
     if (newStage !== stageRef.current) {
       if (stageRef.current === "up" && newStage === "down") {
         setRepCount((prev) => prev + 1);
       }
       setStage(newStage);
     }
-
     let formQuality = "GOOD";
-    
-
     formQualityCounts.current[formQuality.toLowerCase()] += 1;
+    return { elbowAngle, currentVelocity };
   };
 
-  // Pose drawing utilities
+  // NEW: Modern progress bar drawing function
+  const drawModernProgressBars = (canvasCtx, { elbowAngle, currentVelocity }) => {
+    const canvasWidth = canvasCtx.canvas.width;
+    const canvasHeight = canvasCtx.canvas.height;
+    
+    // --- 1. Horizontal Repetition Progress Bar (Modern) ---
+    const MIN_ANGLE = 30;
+    const MAX_ANGLE = 160;
+    let repProgress = (MAX_ANGLE - elbowAngle) / (MAX_ANGLE - MIN_ANGLE);
+    repProgress = Math.max(0, Math.min(1, repProgress)); // Clamp between 0 and 1
+
+    const barWidth = canvasWidth * 0.6;
+    const barHeight = 12;
+    const barX = (canvasWidth - barWidth) / 2;
+    const barY = canvasHeight - 45;
+    const barRadius = barHeight / 2;
+
+    // Draw background
+    canvasCtx.fillStyle = "rgba(255, 255, 255, 0.2)";
+    drawRoundedRect(canvasCtx, barX, barY, barWidth, barHeight, barRadius);
+    canvasCtx.fill();
+    
+    // Draw progress fill with a gradient
+    const progressWidth = barWidth * repProgress;
+    const gradient = canvasCtx.createLinearGradient(barX, 0, barX + barWidth, 0);
+    gradient.addColorStop(0, "#38b2ac"); // Teal
+    gradient.addColorStop(1, "#48bb78"); // Green
+    canvasCtx.fillStyle = gradient;
+
+    if (progressWidth > 0) {
+      canvasCtx.save();
+      drawRoundedRect(canvasCtx, barX, barY, progressWidth, barHeight, barRadius);
+      canvasCtx.clip();
+      canvasCtx.fillRect(barX, barY, barWidth, barHeight);
+      canvasCtx.restore();
+    }
+    
+    // Draw text
+    canvasCtx.fillStyle = "white";
+    canvasCtx.font = "bold 14px 'Segoe UI', sans-serif";
+    canvasCtx.textAlign = "center";
+    canvasCtx.textBaseline = "middle";
+    canvasCtx.fillText(`REP: ${Math.round(repProgress * 100)}%`, canvasWidth / 2, barY + barHeight / 2 + 1);
+
+
+    // --- 2. Radial Speed Gauge (Modern) ---
+    const gaugeCenterX = canvasWidth - 70;
+    const gaugeCenterY = 70;
+    const gaugeRadius = 50;
+    const MAX_VELOCITY = 300;
+    const speedProgress = Math.min(1, currentVelocity / MAX_VELOCITY);
+    
+    const startAngle = 0.75 * Math.PI; // Starts on the left
+    const endAngle = 2.25 * Math.PI;   // Ends on the right
+    const fullAngleRange = endAngle - startAngle;
+
+    // Draw background arc
+    canvasCtx.beginPath();
+    canvasCtx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, startAngle, endAngle);
+    canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+    canvasCtx.lineWidth = 10;
+    canvasCtx.lineCap = "round";
+    canvasCtx.stroke();
+    
+    // Draw progress arc
+    let speedColor = "#38b2ac"; // Green
+    if (speedProgress > 0.8) speedColor = "#e53e3e"; // Red
+    else if (speedProgress > 0.6) speedColor = "#f6e05e"; // Yellow
+
+    if (speedProgress > 0) {
+      canvasCtx.beginPath();
+      canvasCtx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, startAngle, startAngle + (speedProgress * fullAngleRange));
+      canvasCtx.strokeStyle = speedColor;
+      canvasCtx.stroke();
+    }
+    
+    // Draw text inside gauge
+    canvasCtx.fillStyle = "white";
+    canvasCtx.textAlign = "center";
+    canvasCtx.textBaseline = "middle";
+    
+    canvasCtx.font = "bold 22px 'Segoe UI', sans-serif";
+    canvasCtx.fillText(currentVelocity.toFixed(0), gaugeCenterX, gaugeCenterY - 5);
+    
+    canvasCtx.font = "12px 'Segoe UI', sans-serif";
+    canvasCtx.fillText("°/s", gaugeCenterX, gaugeCenterY + 15);
+  };
+
+
   const drawArmPose = (results, canvasCtx) => {
     const landmarks = results.poseLandmarks;
     if (!landmarks) return;
-
     canvasCtx.save();
-    canvasCtx.lineWidth = 4;
-    canvasCtx.strokeStyle = "lime";
-
+    canvasCtx.lineWidth = 5;
+    canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    // Helper to draw a line between two points
     const drawLine = (start, end) => {
       canvasCtx.beginPath();
       canvasCtx.moveTo(landmarks[start].x * 640, landmarks[start].y * 480);
       canvasCtx.lineTo(landmarks[end].x * 640, landmarks[end].y * 480);
       canvasCtx.stroke();
     };
-
+    // Draw right arm (shoulder-elbow-wrist)
     drawLine(12, 14);
     drawLine(14, 16);
-
-    [12, 14, 16].forEach((index) => {
+    // Draw left arm (shoulder-elbow-wrist)
+    drawLine(11, 13);
+    drawLine(13, 15);
+    // Draw joints for both arms
+    [12, 14, 16, 11, 13, 15].forEach((index) => {
       const lm = landmarks[index];
       canvasCtx.beginPath();
-      canvasCtx.arc(lm.x * 640, lm.y * 480, 5, 0, 2 * Math.PI);
-      canvasCtx.fillStyle = "aqua";
+      canvasCtx.arc(lm.x * 640, lm.y * 480, 7, 0, 2 * Math.PI);
+      canvasCtx.fillStyle = "#38b2ac"; // Teal color for joints
       canvasCtx.fill();
+      canvasCtx.strokeStyle = "white";
+      canvasCtx.lineWidth = 2;
+      canvasCtx.stroke();
     });
-
     canvasCtx.restore();
   };
 
+  // ... All other functions (speak, sendLiveFeedback, handleStartCamera, etc.) and JSX remain unchanged.
   // TTS functionality
   const speak = async (text) => {
     if (!text) return;
@@ -269,7 +367,6 @@ const ExercisePose = () => {
 
   // Send live feedback to backend and then speak it
   const sendLiveFeedback = async (poseData) => {
-    // Only send feedback if enough time has passed since the last feedback
     if (Date.now() - lastFeedbackSent.current < FEEDBACK_INTERVAL) return;
 
     try {
@@ -281,7 +378,7 @@ const ExercisePose = () => {
       const data = await res.json();
       const feedbackText = data.feedback || "";
 
-      setFeedback(feedbackText); // Update the UI feedback
+      setFeedback(feedbackText);
       lastFeedbackSent.current = Date.now();
       speak(feedbackText);
     } catch (err) {
@@ -304,16 +401,16 @@ const ExercisePose = () => {
     formQualityCounts.current = { poor: 0, fair: 0, good: 0 };
     setFeedback("Get ready to start!");
     setShowReport(false);
-    latestPoseData.current = null; // Reset latest pose data on start
-    setSpeakingText(""); // Clear speaking text
+    latestPoseData.current = null;
+    setSpeakingText("");
   };
 
   const handleStopCamera = async () => {
     if (camera) camera.stop();
-    setIsCameraActive(false); // Ensure camera is inactive after stopping
-    setIsPaused(false); // Ensure it's not paused
-    latestPoseData.current = null; // Clear latest pose data
-    setSpeakingText(""); // Clear speaking text
+    setIsCameraActive(false);
+    setIsPaused(false);
+    latestPoseData.current = null;
+    setSpeakingText("");
 
     const token = localStorage.getItem("jwtToken");
     console.log("Saving session data...");
@@ -326,9 +423,7 @@ const ExercisePose = () => {
 
     const totalFrames = formQualityCounts.current.poor + formQualityCounts.current.fair + formQualityCounts.current.good;
     const formScore = totalFrames > 0
-      ? (
-          (formQualityCounts.current.good * 100 + formQualityCounts.current.fair * 50) / totalFrames
-        ).toFixed(1)
+      ? ((formQualityCounts.current.good * 100 + formQualityCounts.current.fair * 50) / totalFrames).toFixed(1)
       : 0;
 
     const sessionData = {
@@ -368,7 +463,7 @@ const ExercisePose = () => {
     setIsPaused(!isPaused);
     setFeedback(isPaused ? "Resuming..." : "Paused...");
     if (isPaused) {
-        setSpeakingText(""); // Stop speaking when pausing
+        setSpeakingText("");
     }
   };
 
@@ -414,6 +509,7 @@ const ExercisePose = () => {
       <span className="font-semibold">{value}</span>
     </div>
   );
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] p-8">

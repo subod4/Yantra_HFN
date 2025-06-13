@@ -17,6 +17,7 @@ console.log('Authorization Header:', authHeader);
   const token = authHeader.replace('Bearer', '').trim();
   console.log('Token:', token);
 
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
