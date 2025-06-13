@@ -59,4 +59,67 @@ VALID_INJURY_TERMS = ["sprain", "strain", "pain", "stiffness", "injury", "tear",
 VALID_BODY_PARTS = ["back", "neck", "shoulder", "elbow", "wrist", "hip", "knee", "ankle", 
                     "leg", "arm", "chest", "foot", "hand", "spine", "calf", "thigh", "groin"]
 
+@app.route('/api/suggest-exercises', methods=['POST'])
+def suggest_exercises():
+    try:
+        data = request.json
+        print("Received data:", data)
+        if not data or 'message' not in data or 'user_id' not in data:
+            return jsonify({"error": "Invalid input"}), 400
 
+        user_message = data['message']
+        injury_type = data.get('injuryType', '').lower().strip()
+        duration = data.get('duration', '')
+        severity = data.get('severity', '')
+
+        # Validate injuryType if provided
+        if injury_type:
+            injury_words = injury_type.split()
+            has_injury_term = any(term in injury_type for term in VALID_INJURY_TERMS)
+            has_body_part = any(part in injury_type for part in VALID_BODY_PARTS)
+            
+            # Require both an injury term AND a body part for validity
+            if not (has_injury_term and has_body_part):
+                return jsonify({
+                    "error": "I am not capable of providing output if the injury detail is not related to this platform."
+                }), 400
+
+        # Prepare the prompt for Gemini
+        prompt = (
+            f"The user has reported the following injury: '{injury_type}'. "
+            f"They have had it for {duration} and describe the severity as {severity}. "
+            f"Additional details: '{user_message}'. "
+            f"Based on this, recommend exactly two to four suitable physiotherapy exercises from the following list: "
+            f"{', '.join(exercise_details.keys())}. "
+            "Please list the exercises along with their descriptions in the format: "
+            "'exercise name': 'description'. "
+            "Do not include any additional text or explanations."
+            "if the exercise library is not suitable for the user, please provide a message to inform the user."
+        )
+        print("Generated prompt:", prompt)
+
+        # Call the Gemini API
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        response = model.generate_content(prompt)
+        print("Gemini API response:", response.text)
+
+        # Extract the recommended exercises
+        recommended_exercises = []
+        for line in response.text.splitlines():
+            if ':' in line:
+                name, description = line.split(':', 1)
+                recommended_exercises.append({
+                    "name": name.strip().strip("'"),
+                    "description": description.strip().strip("'")
+                })
+
+        return jsonify({
+            "exercises": recommended_exercises
+        })
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000, debug=False)
