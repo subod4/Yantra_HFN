@@ -413,6 +413,8 @@ const ExercisePose = () => {
     setSpeakingText("");
 
     const token = localStorage.getItem("jwtToken");
+    console.log("Saving session data...");
+    console.log(token);
     if (!token) {
       setSaveError("Authentication required");
       navigate("/login");
