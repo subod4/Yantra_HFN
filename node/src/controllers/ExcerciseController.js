@@ -54,7 +54,35 @@ const getExcerciseSessions = async (req, res) => {
   }
 };
 
+const deleteExcerciseSession = async (req, res) => {
+  try {
+    const sessionId = req.params.id;
+    const session = await ExerciseSession.findOne({ _id: sessionId, userId: req.user._id });
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: 'Exercise session not found or not authorized'
+      });
+    }
+
+    await ExerciseSession.deleteOne({ _id: sessionId });
+    
+    res.status(200).json({
+      success: true,
+      message: 'Exercise session deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete session'
+    });
+  }
+};
+
 module.exports = {
   createExcerciseSession,
   getExcerciseSessions,
+  deleteExcerciseSession
 };
