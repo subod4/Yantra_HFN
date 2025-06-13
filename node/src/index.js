@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/auth', require('./routes/AuthRouter'));
 app.use('/exercise', require('./routes/ExcerciseRouter'));
-
+app.use('/recommendations', require('./routes/RecommendationRouter'));
 
 // Health check
 app.get('/ping', (req, res) => res.status(200).json({ status: 'ok' }));
