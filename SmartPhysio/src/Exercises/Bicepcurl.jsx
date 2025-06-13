@@ -4,6 +4,8 @@ import { Pose } from "@mediapipe/pose";
 import * as cam from "@mediapipe/camera_utils";
 import bicep from "/bicep.mp4";
 
+const FEEDBACK_INTERVAL = 5000; // ms
+
 const ExercisePose = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -33,14 +35,33 @@ const ExercisePose = () => {
   const stageRef = useRef(stage);
   const formQualityCounts = useRef({ poor: 0, fair: 0, good: 0 });
 
+  // New state for TTS and live feedback
+  const [speakingText, setSpeakingText] = useState("");
+  const lastFeedbackSent = useRef(Date.now());
+  const latestPoseData = useRef(null);
+
   useEffect(() => {
     stageRef.current = stage;
   }, [stage]);
+
+  // Effect for sending live feedback at intervals
+  useEffect(() => {
+    if (!isCameraActive || isPaused) return;
+
+    const interval = setInterval(() => {
+      if (latestPoseData.current) {
+        sendLiveFeedback(latestPoseData.current);
+      }
+    }, FEEDBACK_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [isCameraActive, isPaused]);
 
   // Mediapipe initialization
   useEffect(() => {
     let cameraInstance;
     let timerInterval;
+    let poseInstance;
 
     const loadPoseLibrary = async () => {
       try {
@@ -56,18 +77,18 @@ const ExercisePose = () => {
         document.body.appendChild(cameraScript);
 
         poseScript.onload = () => {
-          const pose = new window.Pose({
+          poseInstance = new window.Pose({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
           });
 
-          pose.setOptions({
+          poseInstance.setOptions({
             modelComplexity: 1,
             smoothLandmarks: true,
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5,
           });
 
-          pose.onResults((results) => {
+          poseInstance.onResults((results) => {
             const canvasElement = canvasRef.current;
             const canvasCtx = canvasElement.getContext("2d");
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -75,6 +96,15 @@ const ExercisePose = () => {
             if (results.poseLandmarks) {
               drawArmPose(results, canvasCtx);
               calculateExercise(results);
+
+              // Capture all raw landmarks for sending to backend
+              latestPoseData.current = {
+                exercise: "bicep curl",
+                rep: repCount,
+                stage,
+                landmarks: results.poseLandmarks, // Send all raw landmark data
+                timestamp: Date.now(),
+              };
             } else {
               setFeedback("No person detected");
             }
@@ -84,7 +114,7 @@ const ExercisePose = () => {
             if (isCameraActive && !isPaused && videoRef.current) {
               cameraInstance = new window.Camera(videoRef.current, {
                 onFrame: async () => {
-                  await pose.send({ image: videoRef.current });
+                  await poseInstance.send({ image: videoRef.current });
                 },
                 width: 640,
                 height: 480,
@@ -105,10 +135,14 @@ const ExercisePose = () => {
       }
     };
 
-    loadPoseLibrary();
+    if (isCameraActive && !isPaused) {
+      loadPoseLibrary();
+    }
+
 
     return () => {
       if (cameraInstance) cameraInstance.stop();
+      if (poseInstance) poseInstance.close();
       clearInterval(timerInterval);
     };
   }, [isCameraActive, isPaused]);
@@ -163,35 +197,7 @@ const ExercisePose = () => {
     }
 
     let formQuality = "GOOD";
-    if (upperArmAngle < 150) {
-      setFeedback("❗ Keep upper arm still!");
-      formQuality = "POOR";
-    } else if (velocity > 200) {
-      setFeedback("⚠️ Too fast! Slow down!");
-      formQuality = "FAIR";
-    } else if (velocity < 30 && stageRef.current === "down") {
-      setFeedback("⚠️ Too slow! Extend faster!");
-      formQuality = "FAIR";
-    } else if (stageRef.current === "up") {
-      if (elbowAngle < 45) {
-        setFeedback("🎯 Perfect form!");
-        formQuality = "GOOD";
-      } else if (elbowAngle < 70) {
-        setFeedback("👍 Good, aim higher!");
-        formQuality = "GOOD";
-      } else {
-        setFeedback("↗️ Curl higher!");
-        formQuality = "FAIR";
-      }
-    } else {
-      if (elbowAngle > 175) {
-        setFeedback("✅ Full extension!");
-        formQuality = "GOOD";
-      } else {
-        setFeedback("↘️ Extend fully!");
-        formQuality = "FAIR";
-      }
-    }
+    
 
     formQualityCounts.current[formQuality.toLowerCase()] += 1;
   };
@@ -226,6 +232,65 @@ const ExercisePose = () => {
     canvasCtx.restore();
   };
 
+  // TTS functionality
+  const speak = async (text) => {
+    if (!text) return;
+    setSpeakingText(`Speaking: "${text}"`);
+    try {
+      const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM", {
+        method: "POST",
+        headers: {
+          Accept: "audio/mpeg",
+          "Content-Type": "application/json",
+          "xi-api-key": "sk_3c97034de1e49b7a0371bce7c1b08f39fe2305c1fc511479", // Replace with your actual Eleven Labs API key
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.75,
+            similarity_boost: 0.75,
+          },
+        }),
+      });
+
+      if (!response.ok) throw new Error("TTS request failed");
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+      audio.onended = () => setSpeakingText("");
+    } catch (error) {
+      console.error("TTS error:", error);
+      setSpeakingText("TTS failed.");
+    }
+  };
+
+  // Send live feedback to backend and then speak it
+  const sendLiveFeedback = async (poseData) => {
+    // Only send feedback if enough time has passed since the last feedback
+    if (Date.now() - lastFeedbackSent.current < FEEDBACK_INTERVAL) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/live-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(poseData),
+      });
+      const data = await res.json();
+      const feedbackText = data.feedback || "";
+
+      setFeedback(feedbackText); // Update the UI feedback
+      lastFeedbackSent.current = Date.now();
+      speak(feedbackText);
+    } catch (err) {
+      console.error("Error getting live feedback:", err);
+      setFeedback("Could not get live feedback.");
+      speak("Could not get live feedback.");
+    }
+  };
+
   // Camera controls
   const handleStartCamera = () => {
     setIsCameraActive(true);
@@ -239,10 +304,17 @@ const ExercisePose = () => {
     formQualityCounts.current = { poor: 0, fair: 0, good: 0 };
     setFeedback("Get ready to start!");
     setShowReport(false);
+    latestPoseData.current = null; // Reset latest pose data on start
+    setSpeakingText(""); // Clear speaking text
   };
 
   const handleStopCamera = async () => {
     if (camera) camera.stop();
+    setIsCameraActive(false); // Ensure camera is inactive after stopping
+    setIsPaused(false); // Ensure it's not paused
+    latestPoseData.current = null; // Clear latest pose data
+    setSpeakingText(""); // Clear speaking text
+
     const token = localStorage.getItem("jwtToken");
     if (!token) {
       setSaveError("Authentication required");
@@ -251,7 +323,7 @@ const ExercisePose = () => {
     }
 
     const totalFrames = formQualityCounts.current.poor + formQualityCounts.current.fair + formQualityCounts.current.good;
-    const formScore = totalFrames > 0 
+    const formScore = totalFrames > 0
       ? (
           (formQualityCounts.current.good * 100 + formQualityCounts.current.fair * 50) / totalFrames
         ).toFixed(1)
@@ -286,8 +358,6 @@ const ExercisePose = () => {
       setSaveError(error.message);
     } finally {
       setIsSaving(false);
-      setIsCameraActive(false);
-      setIsPaused(false);
       setFeedback("Session saved.");
     }
   };
@@ -295,6 +365,9 @@ const ExercisePose = () => {
   const handlePauseCamera = () => {
     setIsPaused(!isPaused);
     setFeedback(isPaused ? "Resuming..." : "Paused...");
+    if (isPaused) {
+        setSpeakingText(""); // Stop speaking when pausing
+    }
   };
 
   // Report modal component
@@ -367,6 +440,16 @@ const ExercisePose = () => {
               <p className="text-center text-[#555555] dark:text-gray-300 font-medium">
                 Real-time Feedback: <span className="text-[#FF6F61] dark:text-[#FFD166]">{feedback}</span>
               </p>
+              {/* UI for TTS speaking indicator */}
+              {speakingText && (
+                <div className="mt-2 text-center text-sm text-[#999999] dark:text-gray-500 italic flex items-center justify-center">
+                  <span className="relative flex h-3 w-3 mr-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+                  </span>
+                  🔊 {speakingText}
+                </div>
+              )}
             </div>
             <div className="mt-6 flex space-x-4 justify-center">
               <ControlButton
