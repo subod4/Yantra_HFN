@@ -14,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/auth', require('./routes/AuthRouter'));
+app.use('/exercise', require('./routes/ExcerciseRouter'));
 
 
 // Health check
