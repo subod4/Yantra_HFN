@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './Components/Navbar.jsx';
 import Hero from './Components/Hero.jsx';
 import Features from './Components/Features.jsx';
@@ -12,7 +12,7 @@ import Exercise from './Components/Exercise.jsx';
 import Chat from './Components/Chat.jsx';
 import Dashboard from './Components/Dashboard.jsx';
 import Bicep from './Exercises/Bicepcurl.jsx';
-import ChatApp from './Components/ChatApp.jsx';
+import ChatApp from './Components/ChatApp.jsx'; // Import ChatApp
 
 // Create a Home component that includes Hero, Features, and Pricing
 function Home({ isLoggedIn }) {
@@ -25,10 +25,11 @@ function Home({ isLoggedIn }) {
   );
 }
 
-function App() {
+// Helper to use location outside Router
+function AppContent() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const location = useLocation();
 
-  // Check if the user is logged in on app load
   React.useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     if (token) {
@@ -36,46 +37,37 @@ function App() {
     }
   }, []);
 
+  // Check if on bicep curl page
+  const isBicepPage = location.pathname === '/exercise/bicep-curls';
+
   return (
-    <Router>
-      {/* Navbar is displayed on all pages */}
+    <>
       <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-
-      {/* Routes define which components to render based on the URL */}
       <Routes>
-        {/* Home Page */}
         <Route path="/" element={<Home isLoggedIn={isLoggedIn} />} />
-
-        {/* About Page */}
         <Route path="/about" element={<About />} />
-
-        {/* Pricing Page */}
         <Route path="/pricing" element={<Pricing />} />
-
-        {/* Sign In Page */}
         <Route path="/signin" element={<SignIn setIsLoggedIn={setIsLoggedIn} />} />
-
-        {/* Sign Up Page */}
         <Route path="/signup" element={<SignUp />} />
-
-        {/* Exercise Page */}
         <Route path="/exercise" element={<Exercise />}>
-          {/* Nested route for individual exercises */}
           <Route path=":exerciseName" element={<Exercise />} />
         </Route>
-
-        {/* Chat Page */}
         <Route path="/chat" element={<Chat />} />
-
-        {/* Dashboard Page */}
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/exercise/bicep-curls" element={<Bicep />} />
+        {/* Pass prop to Bicep to show ChatApp expanded */}
+        <Route path="/exercise/bicep-curls" element={<Bicep showChatApp sessionCode="6eb8d5dd-3a3f-4ae8-937f-6870427ee267" />} />
       </Routes>
-
-      {/* Footer is displayed on all pages */}
+      {/* Show ChatApp as floating footer on all pages except bicep curl */}
+      {!isBicepPage && <ChatApp sessionCode="0304e840-b0bd-4b9d-a660-f5b5db9a5021" />}
       <Footer />
-      {/* Add ChatApp here */}
-      <ChatApp />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

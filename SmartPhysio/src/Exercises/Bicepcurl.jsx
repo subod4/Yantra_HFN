@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Pose } from "@mediapipe/pose";
 import * as cam from "@mediapipe/camera_utils";
 import bicep from "/bicep.mp4";
+import ChatApp from '../Components/ChatApp.jsx'; // Add this import
 
 const FEEDBACK_INTERVAL = 3000; // ms
 
@@ -22,7 +23,7 @@ const drawRoundedRect = (ctx, x, y, width, height, radius) => {
 };
 
 
-const ExercisePose = () => {
+const ExercisePose = ({ showChatApp, sessionCode }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
@@ -619,6 +620,16 @@ const ExercisePose = () => {
           </div>
         </div>
       </div>
+
+      {/* Expanded ChatApp below the camera feed */}
+      {showChatApp && (
+        <div
+          className="fixed left-4 bottom-4 z-50 w-[380px] max-w-[90vw]"
+          style={{ minHeight: 400 }}
+        >
+          <ChatApp sessionCode={sessionCode} expanded />
+        </div>
+      )}
 
       {showReport && <ReportModal />}
     </div>

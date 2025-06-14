@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+*.egg
+*.log
+
+# FastAPI/Backend
+ChatBackend/env/
+ChatBackend/.env
+ChatBackend/.venv/
+ChatBackend/venv/
+ChatBackend/backend/sessions/
+ChatBackend/uploads/
+ChatBackend/.mypy_cache/
+ChatBackend/.pytest_cache/
+ChatBackend/.DS_Store
+env
+env/

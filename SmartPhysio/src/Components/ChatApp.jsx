@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { IoChatbubblesOutline, IoClose, IoSend } from 'react-icons/io5';
 import axios from 'axios';
 
-function ChatApp() {
-  const [isExpanded, setIsExpanded] = useState(false);
+function ChatApp({ sessionCode, expanded }) {
+  const [isExpanded, setIsExpanded] = React.useState(!!expanded);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isConnected, setIsConnected] = useState(false);
@@ -57,11 +57,17 @@ function ChatApp() {
     setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
+    console.log("User message sent:", userMessage.text);
+    console.log("Response from server:", {sessionCode, message: inputValue.trim()});
 
     try {
-      const response = await axios.post(`${baseUrl}/api/sessions/${sessionId}/chat`, {        
-        message: inputValue.trim(),
-      });
+      const response = await axios.post(
+        `${baseUrl}/api/sessions/${sessionCode}/chat`, // Use sessionCode prop here
+        { message: inputValue.trim() }
+        
+      );
+      console.log("Response from server:", {sessionCode, message: inputValue.trim()});
+
       console.log("Full response data:", response.data);
       const botMessage = {
         id: messages.length + 2,
@@ -160,20 +166,26 @@ function ChatApp() {
 
       {/* File Upload */}
       <div className="p-4 border-t bg-white">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          onChange={handleFileUpload}
-          className="hidden"
-        />
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isUploading}
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-        >
-          {isUploading ? 'Uploading...' : 'Upload PDF'}
-        </button>
+        {!documentInfo ? ( // Show the upload button only if no document has been uploaded
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+            >
+              {isUploading ? 'Uploading...' : 'Upload PDF'}
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-gray-600">Document uploaded: {documentInfo.filename}</p>
+        )}
         {uploadStatus && <p className="mt-2 text-sm text-gray-600">{uploadStatus}</p>}
       </div>
 
