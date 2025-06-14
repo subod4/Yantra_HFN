@@ -241,7 +241,7 @@ class GeminiSessionManager:
         self.sessions[session_id] = agent
         
         return agent
-    
+    #geting session info
     def get_session_info(self, session_id: str) -> dict:
         """Get detailed session information"""
         agent = self.get_agent(session_id)
