@@ -203,7 +203,7 @@ class GeminiSessionManager:
         
         print(f"✅ Created new session: {session_id}")
         return session_id
-    
+    # Gets or creates a Gemini chatbot agent for the session
     def get_agent(self, session_id: str) -> Optional[GeminiChatbotAgent]:
         """Get or create Gemini chatbot agent for session"""
         if session_id not in self.sessions:
