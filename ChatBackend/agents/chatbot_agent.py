@@ -186,7 +186,7 @@ Summary:"""
         except Exception as e:
             return f"Error generating summary: {str(e)}"
 
-
+#error detection
 class GeminiSessionManager:
     """Enhanced session manager for Gemini-optimized agents"""
     
