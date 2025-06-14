@@ -131,7 +131,13 @@ function ChatApp({ sessionCode, expanded }) {
   }
 
   return (
-    <div className={`${expanded ? "" : "fixed bottom-4 right-4"} w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300`}>
+    <div
+      className={`${
+        expanded
+          ? "h-[400px] w-full" // Fixed height when used in Bicepcurl
+          : "fixed bottom-4 right-4 h-[600px] w-96"
+      } bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300`}
+    >
       {/* Chat Header */}
       <div className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
         <h3 className="font-bold text-lg">Chat with Support</h3>
@@ -141,7 +147,7 @@ function ChatApp({ sessionCode, expanded }) {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-grow p-4 overflow-y-auto bg-gray-50">
+      <div className="flex-grow min-h-0 p-4 overflow-y-auto bg-gray-50">
         {messages.map((message) => (
           <div
             key={message.id}

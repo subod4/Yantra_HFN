@@ -561,10 +561,20 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="relative w-full h-[480px] rounded-lg overflow-hidden shadow-xl bg-black">
-          <video ref={videoRef} className="absolute w-full h-full object-cover" playsInline />
-          <canvas ref={canvasRef} className="absolute w-full h-full z-20" width="640" height="480" />
+        {/* Left column: Camera + Chat */}
+        <div className="flex flex-col flex-1 min-h-0 space-y-6">
+          <div className="relative w-full h-[480px] rounded-lg overflow-hidden shadow-xl bg-black">
+            <video ref={videoRef} className="absolute w-full h-full object-cover" playsInline />
+            <canvas ref={canvasRef} className="absolute w-full h-full z-20" width="640" height="480" />
+          </div>
+          {/* ChatApp fills all available space below camera */}
+          {showChatApp && (
+            <div className="flex-1 min-h-0 flex flex-col">
+              <ChatApp sessionCode={sessionCode} expanded />
+            </div>
+          )}
         </div>
+        {/* Right column: Stats, controls, tutorial */}
         <div className="space-y-6">
           <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
             <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">Live Stats</h2>
@@ -617,12 +627,6 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
             <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">Proper Form Tutorial</h2>
             <video controls src={bicep} className="w-full rounded-lg shadow-md aspect-video" />
           </div>
-          {/* Add ChatApp here as a grid item, always expanded */}
-          {showChatApp && (
-            <div className="mt-4">
-              <ChatApp sessionCode={sessionCode} expanded />
-            </div>
-          )}
         </div>
       </div>
 
