@@ -185,7 +185,7 @@ Summary:"""
             return response.text if response.text else "Unable to generate summary"
         except Exception as e:
             return f"Error generating summary: {str(e)}"
-
+# creates a session manager for Gemini chatbot agents
 #error detection
 class GeminiSessionManager:
     """Enhanced session manager for Gemini-optimized agents"""
