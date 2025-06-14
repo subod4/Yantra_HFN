@@ -12,6 +12,7 @@ import Exercise from './Components/Exercise.jsx';
 import Chat from './Components/Chat.jsx';
 import Dashboard from './Components/Dashboard.jsx';
 import Bicep from './Exercises/Bicepcurl.jsx';
+import ChatApp from './Components/ChatApp.jsx';
 
 // Create a Home component that includes Hero, Features, and Pricing
 function Home({ isLoggedIn }) {
@@ -73,6 +74,8 @@ function App() {
 
       {/* Footer is displayed on all pages */}
       <Footer />
+      {/* Add ChatApp here */}
+      <ChatApp />
     </Router>
   );
 }
