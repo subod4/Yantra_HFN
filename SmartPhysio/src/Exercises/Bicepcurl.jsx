@@ -565,7 +565,6 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
           <video ref={videoRef} className="absolute w-full h-full object-cover" playsInline />
           <canvas ref={canvasRef} className="absolute w-full h-full z-20" width="640" height="480" />
         </div>
-
         <div className="space-y-6">
           <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
             <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">Live Stats</h2>
@@ -618,18 +617,14 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
             <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">Proper Form Tutorial</h2>
             <video controls src={bicep} className="w-full rounded-lg shadow-md aspect-video" />
           </div>
+          {/* Add ChatApp here as a grid item, always expanded */}
+          {showChatApp && (
+            <div className="mt-4">
+              <ChatApp sessionCode={sessionCode} expanded />
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Expanded ChatApp below the camera feed */}
-      {showChatApp && (
-        <div
-          className="fixed left-4 bottom-4 z-50 w-[380px] max-w-[90vw]"
-          style={{ minHeight: 400 }}
-        >
-          <ChatApp sessionCode={sessionCode} expanded />
-        </div>
-      )}
 
       {showReport && <ReportModal />}
     </div>

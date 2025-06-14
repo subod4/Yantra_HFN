@@ -118,7 +118,7 @@ function ChatApp({ sessionCode, expanded }) {
     setIsExpanded(!isExpanded);
   };
 
-  if (!isExpanded) {
+  if (!expanded && !isExpanded) {
     return (
       <button
         onClick={toggleChat}
@@ -131,7 +131,7 @@ function ChatApp({ sessionCode, expanded }) {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300">
+    <div className={`${expanded ? "" : "fixed bottom-4 right-4"} w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300`}>
       {/* Chat Header */}
       <div className="bg-blue-600 text-white p-4 rounded-t-lg flex justify-between items-center">
         <h3 className="font-bold text-lg">Chat with Support</h3>
