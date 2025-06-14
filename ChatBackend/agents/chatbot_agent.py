@@ -194,7 +194,7 @@ class GeminiSessionManager:
         self.sessions: Dict[str, GeminiChatbotAgent] = {}
         self.session_data_path = "backend/sessions"
         os.makedirs(self.session_data_path, exist_ok=True)
-    
+    # Creates a new session and returns the session ID
     def create_session(self) -> str:
         """Create a new session and return session ID"""
         session_id = str(uuid.uuid4())
