@@ -211,10 +211,10 @@ const ExercisePose = () => {
   const drawModernProgressBars = (canvasCtx, { elbowAngle, currentVelocity }) => {
     const canvasWidth = canvasCtx.canvas.width;
     const canvasHeight = canvasCtx.canvas.height;
-    
+
     // --- 1. Horizontal Repetition Progress Bar (Modern) ---
-    const MIN_ANGLE = 30;
-    const MAX_ANGLE = 160;
+    const MIN_ANGLE = 30; // Minimum elbow angle (fully squeezed)
+    const MAX_ANGLE = 160; // Maximum elbow angle (fully extended)
     let repProgress = (MAX_ANGLE - elbowAngle) / (MAX_ANGLE - MIN_ANGLE);
     repProgress = Math.max(0, Math.min(1, repProgress)); // Clamp between 0 and 1
 
@@ -228,7 +228,7 @@ const ExercisePose = () => {
     canvasCtx.fillStyle = "rgba(255, 255, 255, 0.2)";
     drawRoundedRect(canvasCtx, barX, barY, barWidth, barHeight, barRadius);
     canvasCtx.fill();
-    
+
     // Draw progress fill with a gradient
     const progressWidth = barWidth * repProgress;
     const gradient = canvasCtx.createLinearGradient(barX, 0, barX + barWidth, 0);
@@ -237,13 +237,13 @@ const ExercisePose = () => {
     canvasCtx.fillStyle = gradient;
 
     if (progressWidth > 0) {
-      canvasCtx.save();
-      drawRoundedRect(canvasCtx, barX, barY, progressWidth, barHeight, barRadius);
-      canvasCtx.clip();
-      canvasCtx.fillRect(barX, barY, barWidth, barHeight);
-      canvasCtx.restore();
+        canvasCtx.save();
+        drawRoundedRect(canvasCtx, barX, barY, progressWidth, barHeight, barRadius);
+        canvasCtx.clip();
+        canvasCtx.fillRect(barX, barY, barWidth, barHeight);
+        canvasCtx.restore();
     }
-    
+
     // Draw text
     canvasCtx.fillStyle = "white";
     canvasCtx.font = "bold 14px 'Segoe UI', sans-serif";
@@ -252,13 +252,55 @@ const ExercisePose = () => {
     canvasCtx.fillText(`REP: ${Math.round(repProgress * 100)}%`, canvasWidth / 2, barY + barHeight / 2 + 1);
 
 
-    // --- 2. Radial Speed Gauge (Modern) ---
+    // --- 2. Vertical Progress Bar for Hand Movement Guidance ---
+    const verticalBarX = 30;
+    const verticalBarY = 50;
+    const verticalBarHeight = canvasHeight * 0.6;
+    const verticalBarWidth = 12;
+    const verticalBarRadius = verticalBarWidth / 2;
+
+    // Draw background
+    canvasCtx.fillStyle = "rgba(255, 255, 255, 0.2)";
+    drawRoundedRect(canvasCtx, verticalBarX, verticalBarY, verticalBarWidth, verticalBarHeight, verticalBarRadius);
+    canvasCtx.fill();
+
+    // Calculate vertical progress
+    const verticalProgress = (MAX_ANGLE - elbowAngle) / (MAX_ANGLE - MIN_ANGLE);
+    const progressHeight = verticalBarHeight * verticalProgress;
+
+    // Draw progress fill
+    const verticalGradient = canvasCtx.createLinearGradient(0, verticalBarY, 0, verticalBarY + verticalBarHeight);
+    verticalGradient.addColorStop(0, "#48bb78"); // Green
+    verticalGradient.addColorStop(1, "#38b2ac"); // Teal
+    canvasCtx.fillStyle = verticalGradient;
+
+    if (progressHeight > 0) {
+        canvasCtx.save();
+        drawRoundedRect(canvasCtx, verticalBarX, verticalBarY + verticalBarHeight - progressHeight, verticalBarWidth, progressHeight, verticalBarRadius);
+        canvasCtx.clip();
+        canvasCtx.fillRect(verticalBarX, verticalBarY + verticalBarHeight - progressHeight, verticalBarWidth, progressHeight);
+        canvasCtx.restore();
+    }
+
+    // Draw guidance text
+    canvasCtx.fillStyle = "white";
+    canvasCtx.font = "bold 14px 'Segoe UI', sans-serif";
+    canvasCtx.textAlign = "center";
+    canvasCtx.textBaseline = "middle";
+
+    let guidanceText = "Move Up";
+    if (elbowAngle > 140) guidanceText = "Lower";
+    else if (elbowAngle < 50) guidanceText = "Squeeze";
+
+    canvasCtx.fillText(guidanceText, verticalBarX + verticalBarWidth / 2, verticalBarY - 10);
+
+    // --- 3. Radial Speed Gauge (Modern) ---
     const gaugeCenterX = canvasWidth - 70;
     const gaugeCenterY = 70;
     const gaugeRadius = 50;
     const MAX_VELOCITY = 300;
     const speedProgress = Math.min(1, currentVelocity / MAX_VELOCITY);
-    
+
     const startAngle = 0.75 * Math.PI; // Starts on the left
     const endAngle = 2.25 * Math.PI;   // Ends on the right
     const fullAngleRange = endAngle - startAngle;
@@ -270,30 +312,30 @@ const ExercisePose = () => {
     canvasCtx.lineWidth = 10;
     canvasCtx.lineCap = "round";
     canvasCtx.stroke();
-    
+
     // Draw progress arc
     let speedColor = "#38b2ac"; // Green
     if (speedProgress > 0.8) speedColor = "#e53e3e"; // Red
     else if (speedProgress > 0.6) speedColor = "#f6e05e"; // Yellow
 
     if (speedProgress > 0) {
-      canvasCtx.beginPath();
-      canvasCtx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, startAngle, startAngle + (speedProgress * fullAngleRange));
-      canvasCtx.strokeStyle = speedColor;
-      canvasCtx.stroke();
+        canvasCtx.beginPath();
+        canvasCtx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, startAngle, startAngle + (speedProgress * fullAngleRange));
+        canvasCtx.strokeStyle = speedColor;
+        canvasCtx.stroke();
     }
-    
+
     // Draw text inside gauge
     canvasCtx.fillStyle = "white";
     canvasCtx.textAlign = "center";
     canvasCtx.textBaseline = "middle";
-    
+
     canvasCtx.font = "bold 22px 'Segoe UI', sans-serif";
     canvasCtx.fillText(currentVelocity.toFixed(0), gaugeCenterX, gaugeCenterY - 5);
-    
+
     canvasCtx.font = "12px 'Segoe UI', sans-serif";
     canvasCtx.fillText("°/s", gaugeCenterX, gaugeCenterY + 15);
-  };
+};
 
 
   const drawArmPose = (results, canvasCtx) => {
@@ -340,7 +382,7 @@ const ExercisePose = () => {
         headers: {
           Accept: "audio/mpeg",
           "Content-Type": "application/json",
-          "xi-api-key": "sk_3c97034de1e49b7a0371bce7c1b08f39fe2305c1fc511479", // Replace with your actual Eleven Labs API key
+          "xi-api-key": "sk_310885f20202acd4cb410e79f4ef78cdda2e4b3ea304723c", // Replace with your actual Eleven Labs API key
         },
         body: JSON.stringify({
           text,
