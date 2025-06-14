@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { IoChatbubblesOutline, IoClose, IoSend } from 'react-icons/io5';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 function ChatApp({ sessionCode, expanded }) {
   const [isExpanded, setIsExpanded] = React.useState(!!expanded);
@@ -14,6 +15,8 @@ function ChatApp({ sessionCode, expanded }) {
   const [sessionId, setSessionId] = useState(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const location = useLocation();
+  const isBicepPage = location.pathname === '/exercise/bicep-curls';
 
   const baseUrl = 'http://localhost:5000';
 
@@ -62,9 +65,8 @@ function ChatApp({ sessionCode, expanded }) {
 
     try {
       const response = await axios.post(
-        `${baseUrl}/api/sessions/${sessionCode}/chat`, // Use sessionCode prop here
-        { message: inputValue.trim() }
-        
+        `${baseUrl}/api/sessions/${sessionCode}/chat`,
+        { message: inputValue.trim(), isBicepPage } // Send the flag
       );
       console.log("Response from server:", {sessionCode, message: inputValue.trim()});
 
