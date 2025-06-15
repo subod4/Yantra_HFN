@@ -63,4 +63,4 @@ def live_feedback():
         return jsonify({"feedback": "Error contacting Gemini API."}), 500
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8888, debug=True)

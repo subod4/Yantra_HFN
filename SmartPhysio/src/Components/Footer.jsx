@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 function Footer() {
   return (
@@ -13,27 +13,42 @@ function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Getting Started with SmartPhysio
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Exercise Library
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Recovery Tips
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   FAQ
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Support
                 </a>
               </li>
@@ -47,27 +62,42 @@ function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Features
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Supported Devices
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   AI Technology
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   User Guide
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Updates & Releases
                 </a>
               </li>
@@ -81,27 +111,42 @@ function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Webinars
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Physio Meetups
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Health Conferences
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Recovery Challenges
                 </a>
               </li>
               <li>
-                <a href="#" className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300">
+                <a
+                  href="#"
+                  className="text-[#555555] dark:text-gray-400 hover:text-[#FF6F61] transition duration-300"
+                >
                   Careers
                 </a>
               </li>
@@ -112,7 +157,7 @@ function Footer() {
         {/* Credits Section */}
         <div className="mt-12 border-t border-neutral-800 pt-8 text-center">
           <p className="text-[#555555] dark:text-gray-400">
-            Made with ❤️ by{' '}
+            Made with ❤️ by{" "}
             <a
               href="#YANTRA"
               target="_blank"
@@ -123,7 +168,7 @@ function Footer() {
             </a>
           </p>
           <p className="text-[#555555] dark:text-gray-400 mt-2">
-            Icons by{' '}
+            Icons by{" "}
             <a
               href="https://icons8.com"
               target="_blank"
@@ -131,8 +176,8 @@ function Footer() {
               className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text hover:opacity-80 transition duration-300"
             >
               Icons8
-            </a>{' '}
-            and{' '}
+            </a>{" "}
+            and{" "}
             <a
               href="https://fontawesome.com"
               target="_blank"
@@ -143,7 +188,7 @@ function Footer() {
             </a>
           </p>
           <p className="text-[#555555] dark:text-gray-400 mt-2">
-            Images from{' '}
+            Images from{" "}
             <a
               href="https://unsplash.com"
               target="_blank"
@@ -151,8 +196,8 @@ function Footer() {
               className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text hover:opacity-80 transition duration-300"
             >
               Unsplash
-            </a>{' '}
-            and{' '}
+            </a>{" "}
+            and{" "}
             <a
               href="https://pexels.com"
               target="_blank"

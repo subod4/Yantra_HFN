@@ -1,18 +1,18 @@
-import { Link, useNavigate } from 'react-router-dom';
-import Exercise1 from '../assets/AIExercise.jpg';
-import Exercise2 from '../assets/AiExercise2.jpg';
+import { Link, useNavigate } from "react-router-dom";
+import Exercise1 from "../assets/AIExercise.jpg";
+import Exercise2 from "../assets/AiExercise2.jpg";
 
 function Hero({ isLoggedIn }) {
   const navigate = useNavigate();
 
   // Handle navigation to signup
-  const handleSignup = () => navigate('/signup');
+  const handleSignup = () => navigate("/signup");
 
   // Handle navigation to dashboard
-  const handleDashboard = () => navigate('/dashboard');
+  const handleDashboard = () => navigate("/dashboard");
 
   return (
-    <div className="relative bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] min-h-screen flex flex-col items-center justify-center p-10">
+    <div className="relative bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] min-h-screen flex flex-col items-center justify-center p-10 pb-40">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_50%,rgba(255,255,255,0.1),transparent)] dark:bg-[radial-gradient(circle_800px_at_50%_50%,rgba(0,0,0,0.1),transparent)] pointer-events-none"></div>
 
@@ -21,15 +21,15 @@ function Hero({ isLoggedIn }) {
         {/* Text Section */}
         <div className="m-20">
           <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-            SmartPhysio{' '}
+            SajiloRehab{" "}
             <span className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text">
-              {isLoggedIn ? 'Welcome Back!' : 'for Faster Recovery'}
+              {isLoggedIn ? "Welcome Back!" : "for Faster Recovery"}
             </span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-[#555555] dark:text-gray-300">
             {isLoggedIn
-              ? 'Continue your rehabilitation journey with personalized exercise plans and real-time feedback.'
-              : 'Accelerate your rehabilitation with SmartPhysio’s AI-powered solutions. Get personalized exercise plans, real-time feedback, and track your progress every step of the way. Start your recovery journey with us today!'}
+              ? "Continue your rehabilitation journey with personalized exercise plans and real-time feedback."
+              : "Accelerate your rehabilitation with SajiloRehab’s AI-powered solutions. Get personalized exercise plans, real-time feedback, and track your progress every step of the way. Start your recovery journey with us today!"}
           </p>
 
           {/* Buttons */}

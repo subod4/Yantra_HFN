@@ -131,7 +131,7 @@ class GeminiChatbotAgent:
             context_parts = []
             for i, doc in enumerate(docs, 1):
                 context_parts.append(f"Section {i}:\n{doc.page_content}\n")
-            context = "\n".join(context_parts)
+            context = "\n".join(context_par
 
             # Use the selected prompt template
             prompt = prompt_template.format(context=context, query=query)

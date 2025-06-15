@@ -7,7 +7,7 @@ function About() {
       <div className="container mx-auto px-6">
         {/* Section Title */}
         <h2 className="text-4xl sm:text-5xl lg:text-6xl text-center font-bold text-[#333333] dark:text-gray-200 mt-16 mb-12">
-          About <span className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text">SmartPhysio</span>
+          About <span className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text">SajiloRehab</span>
         </h2>
 
         {/* Introduction Section */}
@@ -16,10 +16,10 @@ function About() {
             Struggling to bounce back from an injury? Feeling lost in your recovery journey?
           </h3>
           <p className="text-lg text-[#555555] dark:text-gray-300">
-            SmartPhysio is here to transform your rehabilitation experience into a powerful comeback story!
+            SajiloRehab is here to transform your rehabilitation experience into a powerful comeback story!
           </p>
           <p className="text-lg text-[#555555] dark:text-gray-300 mt-4">
-            Imagine having a personal coach right in your pocket—one who not only guides you through tailored exercise plans but also monitors your form in real-time! With SmartPhysio, you’ll receive expert-level rehab support anytime, anywhere, making recovery not just effective but also enjoyable.
+            Imagine having a personal coach right in your pocket—one who not only guides you through tailored exercise plans but also monitors your form in real-time! With SajiloRehab, you’ll receive expert-level rehab support anytime, anywhere, making recovery not just effective but also enjoyable.
           </p>
         </div>
 
@@ -63,13 +63,13 @@ function About() {
           </div>
         </div>
 
-        {/* Why Choose SmartPhysio Section */}
+        {/* Why Choose SajiloRehab Section */}
         <div className="mb-16">
           <h3 className="text-2xl font-bold text-[#2E4F4F] dark:text-[#FF6F61] mb-4">
-            Why Choose SmartPhysio?
+            Why Choose SajiloRehab?
           </h3>
           <p className="text-lg text-[#555555] dark:text-gray-300">
-            Many people struggle with recovery, feeling isolated and unsure of their progress. SmartPhysio bridges that gap, providing both emotional support and expert guidance. Your AI coach will cheer you on through every challenge!
+            Many people struggle with recovery, feeling isolated and unsure of their progress. SajiloRehab bridges that gap, providing both emotional support and expert guidance. Your AI coach will cheer you on through every challenge!
           </p>
         </div>
 
@@ -111,7 +111,7 @@ function About() {
             Ready to Transform Your Recovery Journey?
           </h3>
           <p className="text-lg text-[#555555] dark:text-gray-300 mb-8">
-            Join us at SmartPhysio and turn your setbacks into comebacks—because healing should be as fierce as you are!
+            Join us at SajiloRehab and turn your setbacks into comebacks—because healing should be as fierce as you are!
           </p>
           <Link
             to="/"
