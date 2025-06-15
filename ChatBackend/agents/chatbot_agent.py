@@ -8,7 +8,7 @@ import google.generativeai as genai
 import os
 import uuid
 from typing import Dict, Optional, List
-from config.settings import GOOGLE_API_KEY
+from config.settings import GOOGLE_API_KEY, PHYSIOTHERAPY_PROMPT, BICEP_CURL_PROMPT
 
 class GeminiChatbotAgent:
     def __init__(self, session_id: str, pdf_path: str):
@@ -113,7 +113,7 @@ class GeminiChatbotAgent:
         
         return False
 
-    def get_answer(self, query: str) -> str:
+    def get_answer(self, query: str, prompt_template: str = PHYSIOTHERAPY_PROMPT) -> str:
         """Get answer using Gemini with retrieved context"""
         # Try to load existing vector store first
         if self.vector_store is None:
@@ -131,29 +131,10 @@ class GeminiChatbotAgent:
             context_parts = []
             for i, doc in enumerate(docs, 1):
                 context_parts.append(f"Section {i}:\n{doc.page_content}\n")
-            
-            context = "\n".join(context_parts)
-            
-            # Create optimized prompt for Gemini
-            prompt = f"""You are a knowledgeable physiotherapy assistant. Answer the following question based on the provided context from a physiotherapy document.
+            context = "\n".join(context_par
 
-CONTEXT FROM PHYSIOTHERAPY DOCUMENT:
-{context}
-
-QUESTION: {query}
-
-INSTRUCTIONS:
-- Provide a comprehensive and helpful answer based on the context
-- If the context contains relevant information, use it to give detailed explanations
-- Include practical advice and recommendations when appropriate
-- If the context doesn't contain enough information to fully answer the question, say so and provide what information you can
-- Use clear, professional language suitable for patients and healthcare providers
-- Format your response with bullet points or numbered lists when helpful
-- don't use any markdown formatting, just plain text
-- make it concise and to the point
-- if the user is greeting you, just say hello and ask how you can help.
-- do not use markdown
-ANSWER:"""
+            # Use the selected prompt template
+            prompt = prompt_template.format(context=context, query=query)
 
             # Generate response using Gemini
             response = self.model.generate_content(prompt)

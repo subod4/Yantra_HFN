@@ -1,11 +1,11 @@
 # main.py - Gemini Optimized Version
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from agents.chatbot_agent import GeminiSessionManager
 from pydantic import BaseModel
 from typing import Optional
 import os
-from config.settings import DEBUG, UPLOAD_FOLDER, ALLOWED_EXTENSIONS, GOOGLE_API_KEY
+from config.settings import DEBUG, UPLOAD_FOLDER, ALLOWED_EXTENSIONS, GOOGLE_API_KEY, PHYSIOTHERAPY_PROMPT, BICEP_CURL_PROMPT
 
 # Validate Google API key at startup
 if not GOOGLE_API_KEY:
@@ -222,6 +222,24 @@ async def list_sessions():
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error listing sessions: {str(e)}")
+
+@app.post("/api/sessions/{session_id}/chat")
+async def chat_with_bot(session_id: str, request: Request):
+    data = await request.json()
+    message = data.get("message")
+    is_bicep_page = data.get("isBicepPage", False)  # Frontend should send this flag
+
+    # Choose prompt
+    if is_bicep_page:
+        prompt = BICEP_CURL_PROMPT
+    else:
+        prompt = PHYSIOTHERAPY_PROMPT
+
+    # ...call your LLM/chatbot with the selected prompt and message...
+    # response = call_llm(prompt, message)
+    # return {"response": response}
+
+    return {"response": f"Prompt used: {prompt}\nUser message: {message}"}
 
 if __name__ == "__main__":
     import uvicorn

@@ -23,3 +23,23 @@ ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
 
 # Other settings
 DEBUG = os.getenv("DEBUG", "False") == "True"
+
+PHYSIOTHERAPY_PROMPT = (
+    "You are an expert physiotherapist. Answer the following question based on the provided context from a physiotherapy document.\n\n"
+    "CONTEXT FROM PHYSIOTHERAPY DOCUMENT:\n"
+    "{context}\n\n"
+    "QUESTION: {query}\n"
+    "If the context does not contain enough information, say so and provide general physiotherapy advice."
+    "make answer as short as possible, but still informative."
+    "use natural text formatting, with out markdown."
+)
+
+BICEP_CURL_PROMPT = (
+    "You are an expert physiotherapist. Answer the following question specifically about the bicep curl exercise, based on the provided context from a physiotherapy document.\n\n"
+    "CONTEXT FROM PHYSIOTHERAPY DOCUMENT:\n"
+    "{context}\n\n"
+    "QUESTION: {query}\n"
+    "If the context does not contain enough information, say so and provide general advice about bicep curls."
+    "make answer as short as possible, but still informative."
+    "use natural text formatting, with out markdown."
+)
