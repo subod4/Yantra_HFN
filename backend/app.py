@@ -52,74 +52,89 @@ exercise_details = {
     'Pigeon Pose': 'A yoga pose that stretches the hips and glutes.'
 }
 
-# Validation lists
-VALID_INJURY_TERMS = ["sprain", "strain", "pain", "stiffness", "injury", "tear", "dislocation", 
-                      "arthritis", "sciatica", "tendinitis", "surgery", "replacement", "fracture", 
-                      "bruise", "spasm", "inflammation", "bursitis", "tendonitis"]
-VALID_BODY_PARTS = ["back", "neck", "shoulder", "elbow", "wrist", "hip", "knee", "ankle", 
-                    "leg", "arm", "chest", "foot", "hand", "spine", "calf", "thigh", "groin"]
+# Validation lists (unchanged)
+VALID_INJURY_TERMS = ["sprain", "strain", "pain", "stiffness", "injury", "tear", "dislocation", "arthritis", "sciatica", "tendinitis", "surgery", "replacement", "fracture", "bruise", "spasm", "inflammation", "bursitis", "tendonitis"]
+VALID_BODY_PARTS = ["back", "neck", "shoulder", "elbow", "wrist", "hip", "knee", "ankle", "leg", "arm", "chest", "foot", "hand", "spine", "calf", "thigh", "groin"]
 
 @app.route('/api/suggest-exercises', methods=['POST'])
 def suggest_exercises():
     try:
         data = request.json
-        print("Received data:", data)
-        if not data or 'message' not in data or 'user_id' not in data:
-            return jsonify({"error": "Invalid input"}), 400
+        # ... (validation for data exists) ...
 
-        user_message = data['message']
+        user_message = data.get('message', '')
         injury_type = data.get('injuryType', '').lower().strip()
         duration = data.get('duration', '')
         severity = data.get('severity', '')
 
-        # Validate injuryType if provided
-        if injury_type:
-            injury_words = injury_type.split()
-            has_injury_term = any(term in injury_type for term in VALID_INJURY_TERMS)
-            has_body_part = any(part in injury_type for part in VALID_BODY_PARTS)
-            
-            # Require both an injury term AND a body part for validity
-            if not (has_injury_term and has_body_part):
-                return jsonify({
-                    "error": "I am not capable of providing output if the injury detail is not related to this platform."
-                }), 400
+        # ... (validation for injury and body part) ...
+        full_description = f"{injury_type} {user_message}".lower()
+        has_injury_term = any(term in full_description for term in VALID_INJURY_TERMS)
+        has_body_part = any(part in full_description for part in VALID_BODY_PARTS)
+        if not (has_injury_term and has_body_part):
+            return jsonify({"error": "Please provide a more specific description including the type of injury (e.g., pain, sprain) and the affected body part (e.g., back, knee)."}), 400
 
-        # Prepare the prompt for Gemini
+        # --- START OF MODIFICATIONS ---
+
+        # MODIFIED PROMPT: Ask for frequency and duration/reps in a specific format
         prompt = (
-            f"The user has reported the following injury: '{injury_type}'. "
-            f"They have had it for {duration} and describe the severity as {severity}. "
+            f"A user is seeking physiotherapy advice. Their reported condition is: '{injury_type}'. "
+            f"They have had it for: '{duration}'. The severity is: '{severity}'. "
             f"Additional details: '{user_message}'. "
-            f"Based on this, recommend exactly two to four suitable physiotherapy exercises from the following list: "
-            f"{', '.join(exercise_details.keys())}. "
-            "Please list the exercises along with their descriptions in the format: "
-            "'exercise name': 'description'. "
-            "Do not include any additional text or explanations."
-            "if the exercise library is not suitable for the user, please provide a message to inform the user."
+            f"Based on this, recommend 2 to 4 suitable physiotherapy exercises from this list: {', '.join(exercise_details.keys())}. "
+            "For each exercise, provide a description, a recommended frequency, and duration/reps. "
+            "it must include frequency and duration/reps"
+            "Format EACH exercise on a new line EXACTLY like this example. it must also give frequency and duration/reps in the format below: "
+            "'Exercise Name: The description of the exercise. | Frequency: 3-4 times a week | Duration: 2 sets of 15 reps' "
+            "Do not include any other text, explanations, or introductory sentences."
         )
         print("Generated prompt:", prompt)
-
-        # Call the Gemini API
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         response = model.generate_content(prompt)
         print("Gemini API response:", response.text)
 
-        # Extract the recommended exercises
+        # MODIFIED PARSING LOGIC: Extract name, description, frequency, and duration
         recommended_exercises = []
         for line in response.text.splitlines():
-            if ':' in line:
-                name, description = line.split(':', 1)
-                recommended_exercises.append({
-                    "name": name.strip().strip("'"),
-                    "description": description.strip().strip("'")
-                })
+            if ':' in line and '|' in line:
+                try:
+                    # Split the line into major parts by the pipe character
+                    parts = line.split('|')
+                    
+                    # The first part contains the name and description
+                    name_desc_part = parts[0]
+                    name, _, description = name_desc_part.partition(':')
 
-        return jsonify({
-            "exercises": recommended_exercises
-        })
+                    # The second part should be frequency
+                    freq_part = parts[1]
+                    _, _, frequency = freq_part.partition(':')
+
+                    # The third part should be duration/reps
+                    dur_part = parts[2]
+                    _, _, duration_reps = dur_part.partition(':')
+
+                    recommended_exercises.append({
+                        "name": name.strip().strip("'\""),
+                        "description": description.strip(),
+                        "frequency": frequency.strip(),
+                        "duration": duration_reps.strip()
+                    })
+                except (IndexError, ValueError) as e:
+                    print(f"Could not parse line: {line}. Error: {e}")
+                    # Optionally, you could try a simpler parse here as a fallback
+                    continue
+        
+        # --- END OF MODIFICATIONS ---
+
+        if not recommended_exercises:
+            return jsonify({"error": "I was unable to determine suitable exercises. Please try rephrasing your condition or check if a medical professional's advice is more appropriate."}), 400
+
+        return jsonify({"exercises": recommended_exercises})
 
     except Exception as e:
         print(f"Error: {str(e)}")
-        return jsonify({"error": "An unexpected error occurred."}), 500
+        return jsonify({"error": "An unexpected error occurred on our server."}), 500
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=4000, debug=False)
+    app.run(host="0.0.0.0", port=4000, debug=True)

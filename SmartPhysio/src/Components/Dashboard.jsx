@@ -274,7 +274,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-center text-[#333333] dark:text-gray-200 mb-8 mt-16 bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text">
-          Your Recovery Dashboard
+          Your SajiloRehab Dashboard
         </h1>
 
         <Tabs.Root value={tab} onValueChange={setTab}>
@@ -500,30 +500,32 @@ const Dashboard = () => {
                         {exerciseSessions.map((session, index) => (
                           <tr
                             key={session._id || index}
-                            className={palette.tableRow}
+                            className={`${palette.tableRow} bg-white dark:bg-neutral-800`}
                           >
-                            <td className="px-4 py-3">{index + 1}</td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
+                              {index + 1}
+                            </td>
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
                               {formatDate(session.timestamp)}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
                               {session.exerciseType
                                 ?.replace(/_/g, " ")
                                 .toUpperCase() || "Unnamed Session"}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
                               {session.duration || 0}s
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
                               {session.reps || "N/A"}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
                               {session.avgTimePerRep || 0}s
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
                               {session.energy || 0} J
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-[#333] dark:text-gray-200">
                               {session.formScore || 0}%
                             </td>
                             <td

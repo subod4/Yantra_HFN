@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FcGoogle } from 'react-icons/fc';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import { ToastContainer, toast } from "react-toastify";
 
 function SignUp() {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -28,30 +28,30 @@ function SignUp() {
     const { fullName, email, password, confirmPassword } = formData;
 
     if (!fullName || !email || !password || !confirmPassword) {
-      return toast.error('All fields are required');
+      return toast.error("All fields are required");
     }
 
     if (password !== confirmPassword) {
-      return toast.error('Passwords do not match');
+      return toast.error("Passwords do not match");
     }
 
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:8000/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(`http://localhost:8000/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: fullName, email, password }),
       });
 
       const result = await response.json();
       if (result.success) {
         toast.success(result.message);
-        setTimeout(() => navigate('/signin'), 1000);
+        setTimeout(() => navigate("/signin"), 1000);
       } else {
         toast.error(result.error?.details[0]?.message || result.message);
       }
     } catch (err) {
-      toast.error('Something went wrong. Please try again.');
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -59,18 +59,21 @@ function SignUp() {
 
   // Handle Google Sign-In
   const handleGoogleSignIn = () => {
-    console.log('Signing up with Google...');
+    console.log("Signing up with Google...");
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] min-h-screen flex items-center justify-center p-6">
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-8 max-w-md w-full transform hover:scale-105 transition duration-300">
+    <div className="pt-20 bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] min-h-screen flex items-center justify-center p-6">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-8 max-w-md w-full transform ">
         <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text mb-6">
           Sign Up
         </h2>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-[#555555] dark:text-gray-400">
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-medium text-[#555555] dark:text-gray-400"
+            >
               Full Name
             </label>
             <input
@@ -80,12 +83,15 @@ function SignUp() {
               id="fullName"
               name="fullName"
               placeholder="Enter your full name"
-              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent"
+              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent dark:bg-neutral-700 dark:text-white"
               required
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-[#555555] dark:text-gray-400">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-[#555555] dark:text-gray-400"
+            >
               Email
             </label>
             <input
@@ -95,12 +101,15 @@ function SignUp() {
               id="email"
               name="email"
               placeholder="Enter your email"
-              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent"
+              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent dark:bg-neutral-700 dark:text-white"
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-[#555555] dark:text-gray-400">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-[#555555] dark:text-gray-400"
+            >
               Password
             </label>
             <input
@@ -110,12 +119,15 @@ function SignUp() {
               id="password"
               name="password"
               placeholder="Enter your password"
-              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent"
+              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent dark:bg-neutral-700 dark:text-white"
               required
             />
           </div>
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#555555] dark:text-gray-400">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-[#555555] dark:text-gray-400"
+            >
               Confirm Password
             </label>
             <input
@@ -125,7 +137,7 @@ function SignUp() {
               id="confirmPassword"
               name="confirmPassword"
               placeholder="Confirm your password"
-              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent"
+              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent dark:bg-neutral-700 dark:text-white"
               required
             />
           </div>
@@ -135,7 +147,7 @@ function SignUp() {
               className="w-full px-4 py-2 bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition duration-300"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing Up...' : 'Sign Up'}
+              {isLoading ? "Signing Up..." : "Sign Up"}
             </button>
           </div>
         </form>
@@ -161,7 +173,7 @@ function SignUp() {
         {/* Sign In Link */}
         <div className="mt-6 text-center">
           <p className="text-[#555555] dark:text-gray-400">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               to="/signin"
               className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text hover:opacity-80 transition duration-300"

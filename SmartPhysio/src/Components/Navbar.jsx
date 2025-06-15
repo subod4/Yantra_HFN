@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Logo from '../assets/logo.png';
-import { FiMenu, FiX } from 'react-icons/fi';
-import { HiOutlineUserCircle } from 'react-icons/hi';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../assets/logo.png";
+import { FiMenu, FiX } from "react-icons/fi";
+import { HiOutlineUserCircle } from "react-icons/hi";
 
 function Navbar({ isLoggedIn, setIsLoggedIn }) {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken');
+    localStorage.removeItem("jwtToken");
     setIsLoggedIn(false);
-    navigate('/');
+    navigate("/");
     setIsMenuOpen(false); // Close menu on logout
   };
 
@@ -30,36 +30,39 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
           <Link to="/" className="flex items-center space-x-2 group">
-            <img 
-              src={Logo} 
-              alt="SmartPhysio Logo" 
-              className="h-10 w-10 transition-transform group-hover:rotate-[-8deg]" 
+            <img
+              src={Logo}
+              alt="SmartPhysio Logo"
+              className="h-10 w-10 transition-transform group-hover:rotate-[-8deg]"
             />
             <span className="text-2xl font-bold bg-gradient-to-r from-[#FF6F61] to-[#FFD166] bg-clip-text text-transparent">
-              SmartPhysio
+              SajiloRehab
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => link.show && (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="relative px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-[#FF6F61] transition-colors
+            {navLinks.map(
+              (link) =>
+                link.show && (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className="relative px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-[#FF6F61] transition-colors
                          after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#FF6F61] 
                          hover:after:w-full after:transition-all after:duration-300"
-              >
-                {link.label}
-              </Link>
-            ))}
+                  >
+                    {link.label}
+                  </Link>
+                )
+            )}
           </nav>
 
           {/* Auth Section */}
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                <button 
+                <button
                   onClick={handleLogout}
                   className="hidden md:flex items-center px-4 py-2 bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-white 
                             rounded-lg hover:shadow-lg hover:shadow-[#FF6F61]/30 transition-all duration-300"
@@ -92,7 +95,11 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
               className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-[#FF6F61] transition-colors"
               aria-label="Toggle menu"
             >
-              {isMenuOpen ? <FiX className="text-2xl" /> : <FiMenu className="text-2xl" />}
+              {isMenuOpen ? (
+                <FiX className="text-2xl" />
+              ) : (
+                <FiMenu className="text-2xl" />
+              )}
             </button>
           </div>
         </div>
@@ -101,17 +108,20 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
         {isMenuOpen && (
           <div className="md:hidden absolute w-full bg-white dark:bg-[#1A1A1A] shadow-lg border-t border-gray-100 dark:border-neutral-800">
             <div className="px-4 pt-2 pb-4 space-y-2">
-              {navLinks.map((link) => link.show && (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 rounded-lg"
-                >
-                  {link.label}
-                </Link>
-              ))}
-              
+              {navLinks.map(
+                (link) =>
+                  link.show && (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800 rounded-lg"
+                    >
+                      {link.label}
+                    </Link>
+                  )
+              )}
+
               <div className="pt-4 border-t border-gray-100 dark:border-neutral-800">
                 {isLoggedIn ? (
                   <button

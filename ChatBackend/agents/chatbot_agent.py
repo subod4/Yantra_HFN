@@ -149,7 +149,10 @@ INSTRUCTIONS:
 - If the context doesn't contain enough information to fully answer the question, say so and provide what information you can
 - Use clear, professional language suitable for patients and healthcare providers
 - Format your response with bullet points or numbered lists when helpful
-
+- don't use any markdown formatting, just plain text
+- make it concise and to the point
+- if the user is greeting you, just say hello and ask how you can help.
+- do not use markdown
 ANSWER:"""
 
             # Generate response using Gemini

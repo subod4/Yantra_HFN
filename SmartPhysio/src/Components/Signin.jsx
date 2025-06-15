@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FcGoogle } from 'react-icons/fc';
-import { handleError, handleSuccess } from '../Utils.jsx';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import { handleError, handleSuccess } from "../Utils.jsx";
 
 function SignIn({ setIsLoggedIn }) {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -27,33 +27,32 @@ function SignIn({ setIsLoggedIn }) {
 
     // Form validation
     if (!formData.email || !formData.password) {
-      handleError('Please fill in all fields');
+      handleError("Please fill in all fields");
       return;
     }
-    
 
     try {
       setIsLoading(true);
 
       // Send login request to the backend
-      const response = await fetch('http://localhost:8000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        handleSuccess('Sign In Successful'); // Show success toast
-        localStorage.setItem('jwtToken', result.jwtToken); // Save token
+        handleSuccess("Sign In Successful"); // Show success toast
+        localStorage.setItem("jwtToken", result.jwtToken); // Save token
         setIsLoggedIn(true); // Update isLoggedIn state in App component
-        navigate('/dashboard'); // Redirect to dashboard
+        navigate("/dashboard"); // Redirect to dashboard
       } else {
         handleError(result.error || result.message); // Show error toast
       }
     } catch (err) {
-      handleError('Something went wrong. Please try again.'); // Show error toast
+      handleError("Something went wrong. Please try again."); // Show error toast
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +61,7 @@ function SignIn({ setIsLoggedIn }) {
   // Google Sign-In handler
   const handleGoogleSignIn = () => {
     setIsGoogleLoading(true);
-    console.log('Signing in with Google...');
+    console.log("Signing in with Google...");
     // Add Google OAuth logic here
     setIsGoogleLoading(false);
   };
@@ -75,7 +74,10 @@ function SignIn({ setIsLoggedIn }) {
         </h2>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-[#555555] dark:text-gray-400">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-[#555555] dark:text-gray-400"
+            >
               Email
             </label>
             <input
@@ -85,12 +87,15 @@ function SignIn({ setIsLoggedIn }) {
               id="email"
               name="email"
               placeholder="Enter your email"
-              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent"
+              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent dark:bg-neutral-700 dark:text-white"
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-[#555555] dark:text-gray-400">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-[#555555] dark:text-gray-400"
+            >
               Password
             </label>
             <input
@@ -100,7 +105,7 @@ function SignIn({ setIsLoggedIn }) {
               id="password"
               name="password"
               placeholder="Enter your password"
-              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent"
+              className="mt-1 block w-full px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF6F61] focus:border-transparent dark:bg-neutral-700 dark:text-white"
               required
             />
           </div>
@@ -110,7 +115,7 @@ function SignIn({ setIsLoggedIn }) {
               className="w-full px-4 py-2 bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition duration-300"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {isLoading ? "Signing In..." : "Sign In"}
             </button>
           </div>
         </form>
@@ -130,14 +135,16 @@ function SignIn({ setIsLoggedIn }) {
         >
           <FcGoogle className="w-5 h-5" />
           <span className="text-[#555555] dark:text-gray-200 font-medium">
-            {isGoogleLoading ? 'Signing In with Google...' : 'Sign In with Google'}
+            {isGoogleLoading
+              ? "Signing In with Google..."
+              : "Sign In with Google"}
           </span>
         </button>
 
         {/* Sign Up Link */}
         <div className="mt-6 text-center">
           <p className="text-[#555555] dark:text-gray-400">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <Link
               to="/signup"
               className="bg-gradient-to-r from-[#FF6F61] to-[#FFD166] text-transparent bg-clip-text hover:opacity-80 transition duration-300"

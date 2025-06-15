@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Pose } from "@mediapipe/pose";
 import * as cam from "@mediapipe/camera_utils";
 import bicep from "/bicep.mp4";
-import ChatApp from '../Components/ChatApp.jsx'; // Add this import
+import ChatApp from "../Components/ChatApp.jsx"; // Add this import
 
 const FEEDBACK_INTERVAL = 3000; // ms
 
@@ -21,7 +21,6 @@ const drawRoundedRect = (ctx, x, y, width, height, radius) => {
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
 };
-
 
 const ExercisePose = ({ showChatApp, sessionCode }) => {
   const videoRef = useRef(null);
@@ -83,7 +82,8 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
         poseScript.async = true;
 
         const cameraScript = document.createElement("script");
-        cameraScript.src = "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js";
+        cameraScript.src =
+          "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js";
         cameraScript.async = true;
 
         document.body.appendChild(poseScript);
@@ -91,7 +91,8 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
 
         poseScript.onload = () => {
           poseInstance = new window.Pose({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+            locateFile: (file) =>
+              `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
           });
 
           poseInstance.setOptions({
@@ -105,7 +106,12 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
             const canvasElement = canvasRef.current;
             if (!canvasElement) return;
             const canvasCtx = canvasElement.getContext("2d");
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.clearRect(
+              0,
+              0,
+              canvasElement.width,
+              canvasElement.height
+            );
 
             if (results.poseLandmarks) {
               const metrics = calculateExercise(results);
@@ -138,13 +144,18 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
               cameraInstance.start();
               setCamera(cameraInstance);
               setFeedback("Camera started. Begin your exercise.");
-              timerInterval = setInterval(() => setTimer((prev) => prev + 1), 1000);
+              timerInterval = setInterval(
+                () => setTimer((prev) => prev + 1),
+                1000
+              );
             }
           };
         };
 
-        poseScript.onerror = () => setFeedback("Failed to load Mediapipe Pose library");
-        cameraScript.onerror = () => setFeedback("Failed to load Mediapipe Camera library");
+        poseScript.onerror = () =>
+          setFeedback("Failed to load Mediapipe Pose library");
+        cameraScript.onerror = () =>
+          setFeedback("Failed to load Mediapipe Camera library");
       } catch (error) {
         console.error("Error loading Mediapipe:", error);
         setFeedback(error?.message || "Pose detection initialization failed");
@@ -163,7 +174,8 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
   }, [isCameraActive, isPaused]);
 
   const calculateAngle = (a, b, c) => {
-    const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+    const radians =
+      Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
     let angle = Math.abs((radians * 180.0) / Math.PI);
     return angle > 180 ? 360 - angle : angle;
   };
@@ -177,15 +189,21 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     const elbowAngle = calculateAngle(rs, re, rw);
     const currentTimestamp = performance.now();
     let currentVelocity = 0;
-    if (prevElbowAngleRef.current !== null && prevTimestampRef.current !== null) {
+    if (
+      prevElbowAngleRef.current !== null &&
+      prevTimestampRef.current !== null
+    ) {
       const deltaAngle = elbowAngle - prevElbowAngleRef.current;
       const deltaTime = (currentTimestamp - prevTimestampRef.current) / 1000;
       if (deltaTime > 0) {
         const angularVelocity = Math.abs(deltaAngle / deltaTime);
         currentVelocity = angularVelocity;
         setVelocity(angularVelocity.toFixed(1));
-        const armMass = 2, gravity = 9.81, armLength = 0.3;
-        const heightChange = armLength * (1 - Math.cos(elbowAngle * Math.PI / 180));
+        const armMass = 2,
+          gravity = 9.81,
+          armLength = 0.3;
+        const heightChange =
+          armLength * (1 - Math.cos((elbowAngle * Math.PI) / 180));
         const workPerRep = armMass * gravity * heightChange;
         if (stageRef.current === "up" && elbowAngle < 90 && deltaAngle < 0) {
           setEnergy((prev) => prev + workPerRep);
@@ -209,7 +227,10 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
   };
 
   // NEW: Modern progress bar drawing function
-  const drawModernProgressBars = (canvasCtx, { elbowAngle, currentVelocity }) => {
+  const drawModernProgressBars = (
+    canvasCtx,
+    { elbowAngle, currentVelocity }
+  ) => {
     const canvasWidth = canvasCtx.canvas.width;
     const canvasHeight = canvasCtx.canvas.height;
 
@@ -232,17 +253,29 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
 
     // Draw progress fill with a gradient
     const progressWidth = barWidth * repProgress;
-    const gradient = canvasCtx.createLinearGradient(barX, 0, barX + barWidth, 0);
+    const gradient = canvasCtx.createLinearGradient(
+      barX,
+      0,
+      barX + barWidth,
+      0
+    );
     gradient.addColorStop(0, "#38b2ac"); // Teal
     gradient.addColorStop(1, "#48bb78"); // Green
     canvasCtx.fillStyle = gradient;
 
     if (progressWidth > 0) {
-        canvasCtx.save();
-        drawRoundedRect(canvasCtx, barX, barY, progressWidth, barHeight, barRadius);
-        canvasCtx.clip();
-        canvasCtx.fillRect(barX, barY, barWidth, barHeight);
-        canvasCtx.restore();
+      canvasCtx.save();
+      drawRoundedRect(
+        canvasCtx,
+        barX,
+        barY,
+        progressWidth,
+        barHeight,
+        barRadius
+      );
+      canvasCtx.clip();
+      canvasCtx.fillRect(barX, barY, barWidth, barHeight);
+      canvasCtx.restore();
     }
 
     // Draw text
@@ -250,8 +283,11 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     canvasCtx.font = "bold 14px 'Segoe UI', sans-serif";
     canvasCtx.textAlign = "center";
     canvasCtx.textBaseline = "middle";
-    canvasCtx.fillText(`REP: ${Math.round(repProgress * 100)}%`, canvasWidth / 2, barY + barHeight / 2 + 1);
-
+    canvasCtx.fillText(
+      `REP: ${Math.round(repProgress * 100)}%`,
+      canvasWidth / 2,
+      barY + barHeight / 2 + 1
+    );
 
     // --- 2. Vertical Progress Bar for Hand Movement Guidance ---
     const verticalBarX = 30;
@@ -262,7 +298,14 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
 
     // Draw background
     canvasCtx.fillStyle = "rgba(255, 255, 255, 0.2)";
-    drawRoundedRect(canvasCtx, verticalBarX, verticalBarY, verticalBarWidth, verticalBarHeight, verticalBarRadius);
+    drawRoundedRect(
+      canvasCtx,
+      verticalBarX,
+      verticalBarY,
+      verticalBarWidth,
+      verticalBarHeight,
+      verticalBarRadius
+    );
     canvasCtx.fill();
 
     // Calculate vertical progress
@@ -270,17 +313,34 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     const progressHeight = verticalBarHeight * verticalProgress;
 
     // Draw progress fill
-    const verticalGradient = canvasCtx.createLinearGradient(0, verticalBarY, 0, verticalBarY + verticalBarHeight);
+    const verticalGradient = canvasCtx.createLinearGradient(
+      0,
+      verticalBarY,
+      0,
+      verticalBarY + verticalBarHeight
+    );
     verticalGradient.addColorStop(0, "#48bb78"); // Green
     verticalGradient.addColorStop(1, "#38b2ac"); // Teal
     canvasCtx.fillStyle = verticalGradient;
 
     if (progressHeight > 0) {
-        canvasCtx.save();
-        drawRoundedRect(canvasCtx, verticalBarX, verticalBarY + verticalBarHeight - progressHeight, verticalBarWidth, progressHeight, verticalBarRadius);
-        canvasCtx.clip();
-        canvasCtx.fillRect(verticalBarX, verticalBarY + verticalBarHeight - progressHeight, verticalBarWidth, progressHeight);
-        canvasCtx.restore();
+      canvasCtx.save();
+      drawRoundedRect(
+        canvasCtx,
+        verticalBarX,
+        verticalBarY + verticalBarHeight - progressHeight,
+        verticalBarWidth,
+        progressHeight,
+        verticalBarRadius
+      );
+      canvasCtx.clip();
+      canvasCtx.fillRect(
+        verticalBarX,
+        verticalBarY + verticalBarHeight - progressHeight,
+        verticalBarWidth,
+        progressHeight
+      );
+      canvasCtx.restore();
     }
 
     // Draw guidance text
@@ -293,7 +353,11 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     if (elbowAngle > 140) guidanceText = "Lower";
     else if (elbowAngle < 50) guidanceText = "Squeeze";
 
-    canvasCtx.fillText(guidanceText, verticalBarX + verticalBarWidth / 2, verticalBarY - 10);
+    canvasCtx.fillText(
+      guidanceText,
+      verticalBarX + verticalBarWidth / 2,
+      verticalBarY - 10
+    );
 
     // --- 3. Radial Speed Gauge (Modern) ---
     const gaugeCenterX = canvasWidth - 70;
@@ -303,12 +367,18 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     const speedProgress = Math.min(1, currentVelocity / MAX_VELOCITY);
 
     const startAngle = 0.75 * Math.PI; // Starts on the left
-    const endAngle = 2.25 * Math.PI;   // Ends on the right
+    const endAngle = 2.25 * Math.PI; // Ends on the right
     const fullAngleRange = endAngle - startAngle;
 
     // Draw background arc
     canvasCtx.beginPath();
-    canvasCtx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, startAngle, endAngle);
+    canvasCtx.arc(
+      gaugeCenterX,
+      gaugeCenterY,
+      gaugeRadius,
+      startAngle,
+      endAngle
+    );
     canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.2)";
     canvasCtx.lineWidth = 10;
     canvasCtx.lineCap = "round";
@@ -320,10 +390,16 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     else if (speedProgress > 0.6) speedColor = "#f6e05e"; // Yellow
 
     if (speedProgress > 0) {
-        canvasCtx.beginPath();
-        canvasCtx.arc(gaugeCenterX, gaugeCenterY, gaugeRadius, startAngle, startAngle + (speedProgress * fullAngleRange));
-        canvasCtx.strokeStyle = speedColor;
-        canvasCtx.stroke();
+      canvasCtx.beginPath();
+      canvasCtx.arc(
+        gaugeCenterX,
+        gaugeCenterY,
+        gaugeRadius,
+        startAngle,
+        startAngle + speedProgress * fullAngleRange
+      );
+      canvasCtx.strokeStyle = speedColor;
+      canvasCtx.stroke();
     }
 
     // Draw text inside gauge
@@ -332,12 +408,15 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     canvasCtx.textBaseline = "middle";
 
     canvasCtx.font = "bold 22px 'Segoe UI', sans-serif";
-    canvasCtx.fillText(currentVelocity.toFixed(0), gaugeCenterX, gaugeCenterY - 5);
+    canvasCtx.fillText(
+      currentVelocity.toFixed(0),
+      gaugeCenterX,
+      gaugeCenterY - 5
+    );
 
     canvasCtx.font = "12px 'Segoe UI', sans-serif";
     canvasCtx.fillText("°/s", gaugeCenterX, gaugeCenterY + 15);
-};
-
+  };
 
   const drawArmPose = (results, canvasCtx) => {
     const landmarks = results.poseLandmarks;
@@ -378,22 +457,25 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     if (!text) return;
     setSpeakingText(`Speaking: "${text}"`);
     try {
-      const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM", {
-        method: "POST",
-        headers: {
-          Accept: "audio/mpeg",
-          "Content-Type": "application/json",
-          "xi-api-key": "sk_310885f20202acd4cb410e79f4ef78cdda2e4b3ea304723c", // Replace with your actual Eleven Labs API key
-        },
-        body: JSON.stringify({
-          text,
-          model_id: "eleven_monolingual_v1",
-          voice_settings: {
-            stability: 0.75,
-            similarity_boost: 0.75,
+      const response = await fetch(
+        "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM",
+        {
+          method: "POST",
+          headers: {
+            Accept: "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": "sk_310885f20202acd4cb410e79f4ef78cdda2e4b3ea304723c", // Replace with your actual Eleven Labs API key
           },
-        }),
-      });
+          body: JSON.stringify({
+            text,
+            model_id: "eleven_monolingual_v1",
+            voice_settings: {
+              stability: 0.75,
+              similarity_boost: 0.75,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error("TTS request failed");
 
@@ -413,7 +495,7 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     if (Date.now() - lastFeedbackSent.current < FEEDBACK_INTERVAL) return;
 
     try {
-      const res = await fetch("http://localhost:5000/live-feedback", {
+      const res = await fetch("http://localhost:8888/live-feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(poseData),
@@ -464,10 +546,18 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
       return;
     }
 
-    const totalFrames = formQualityCounts.current.poor + formQualityCounts.current.fair + formQualityCounts.current.good;
-    const formScore = totalFrames > 0
-      ? ((formQualityCounts.current.good * 100 + formQualityCounts.current.fair * 50) / totalFrames).toFixed(1)
-      : 0;
+    const totalFrames =
+      formQualityCounts.current.poor +
+      formQualityCounts.current.fair +
+      formQualityCounts.current.good;
+    const formScore =
+      totalFrames > 0
+        ? (
+            (formQualityCounts.current.good * 100 +
+              formQualityCounts.current.fair * 50) /
+            totalFrames
+          ).toFixed(1)
+        : 0;
 
     const sessionData = {
       duration: timer,
@@ -506,7 +596,7 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
     setIsPaused(!isPaused);
     setFeedback(isPaused ? "Resuming..." : "Paused...");
     if (isPaused) {
-        setSpeakingText("");
+      setSpeakingText("");
     }
   };
 
@@ -524,14 +614,32 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
           <h2 className="text-3xl font-bold text-[#333333] dark:text-gray-200 mb-6 text-center">
             Exercise Summary
           </h2>
-          {isSaving && <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg">Saving...</div>}
-          {isSaved && <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-lg">Saved!</div>}
-          {saveError && <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg">Error: {saveError}</div>}
+          {isSaving && (
+            <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg">
+              Saving...
+            </div>
+          )}
+          {isSaved && (
+            <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-lg">
+              Saved!
+            </div>
+          )}
+          {saveError && (
+            <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-lg">
+              Error: {saveError}
+            </div>
+          )}
           <div className="space-y-4 mb-6">
             <StatItem label="Duration" value={`${exerciseStats.duration}s`} />
             <StatItem label="Reps Completed" value={exerciseStats.reps} />
-            <StatItem label="Avg Time/Rep" value={`${exerciseStats.avgTimePerRep}s`} />
-            <StatItem label="Energy Expended" value={`${exerciseStats.energy} J`} />
+            <StatItem
+              label="Avg Time/Rep"
+              value={`${exerciseStats.avgTimePerRep}s`}
+            />
+            <StatItem
+              label="Energy Expended"
+              value={`${exerciseStats.energy} J`}
+            />
             <StatItem label="Form Score" value={`${formScore}%`} />
             <StatItem label="Performance" value={performanceRating} />
           </div>
@@ -549,13 +657,14 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
   const StatItem = ({ label, value }) => (
     <div className="flex justify-between">
       <span className="text-[#555555] dark:text-gray-400">{label}:</span>
-      <span className="font-semibold">{value}</span>
+      <span className="font-semibold text-[#333333] dark:text-gray-200">
+        {value}
+      </span>
     </div>
   );
 
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] p-8">
+    <div className="pt-20 min-h-screen bg-gradient-to-br from-[#6C9BCF] to-[#F4F4F4] dark:from-[#2E4F4F] dark:to-[#1A1A1A] p-8">
       <h1 className="text-4xl font-bold text-center text-[#333333] dark:text-gray-200 mb-8">
         Mathematical Bicep Curl Coach
       </h1>
@@ -564,8 +673,17 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
         {/* Left column: Camera + Chat */}
         <div className="flex flex-col flex-1 min-h-0 space-y-6">
           <div className="relative w-full h-[480px] rounded-lg overflow-hidden shadow-xl bg-black">
-            <video ref={videoRef} className="absolute w-full h-full object-cover" playsInline />
-            <canvas ref={canvasRef} className="absolute w-full h-full z-20" width="640" height="480" />
+            <video
+              ref={videoRef}
+              className="absolute w-full h-full object-cover"
+              playsInline
+            />
+            <canvas
+              ref={canvasRef}
+              className="absolute w-full h-full z-20"
+              width="640"
+              height="480"
+            />
           </div>
           {/* ChatApp fills all available space below camera */}
           {showChatApp && (
@@ -577,18 +695,42 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
         {/* Right column: Stats, controls, tutorial */}
         <div className="space-y-6">
           <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">Live Stats</h2>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <StatItem label="Timer" value={`${timer}s`} />
-              <StatItem label="Reps" value={repCount} />
-              <StatItem label="Current Stage" value={stage.toUpperCase()} />
-              <StatItem label="Velocity" value={`${velocity} °/s`} />
-              <StatItem label="Energy" value={`${energy.toFixed(1)} J`} />
-              <StatItem label="Form Quality" value={feedback.includes("❗") ? "POOR" : feedback.includes("⚠️") ? "FAIR" : "GOOD"} />
+            <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">
+              Live Stats
+            </h2>
+            {/* Improved Live Stats Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+              <StatCard label="Timer" value={`${timer}s`} icon="⏱️" />
+              <StatCard label="Reps" value={repCount} icon="🔁" />
+              <StatCard
+                label="Current Stage"
+                value={stage.toUpperCase()}
+                icon="🏋️"
+              />
+              <StatCard label="Velocity" value={`${velocity} °/s`} icon="💨" />
+              <StatCard
+                label="Energy"
+                value={`${energy.toFixed(1)} J`}
+                icon="⚡"
+              />
+              <StatCard
+                label="Form Quality"
+                value={
+                  feedback.includes("❗")
+                    ? "POOR"
+                    : feedback.includes("⚠️")
+                    ? "FAIR"
+                    : "GOOD"
+                }
+                icon="✅"
+              />
             </div>
-            <div className="p-4 bg-gray-100 dark:bg-neutral-700 rounded-lg">
+            <div className="p-4 bg-gray-100 dark:bg-neutral-700 rounded-lg mb-4">
               <p className="text-center text-[#555555] dark:text-gray-300 font-medium">
-                Real-time Feedback: <span className="text-[#FF6F61] dark:text-[#FFD166]">{feedback}</span>
+                Real-time Feedback:{" "}
+                <span className="text-[#FF6F61] dark:text-[#FFD166]">
+                  {feedback}
+                </span>
               </p>
               {/* UI for TTS speaking indicator */}
               {speakingText && (
@@ -601,7 +743,7 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
                 </div>
               )}
             </div>
-            <div className="mt-6 flex space-x-4 justify-center">
+            <div className="mt-6 flex flex-wrap gap-4 justify-center">
               <ControlButton
                 onClick={handleStartCamera}
                 disabled={isCameraActive}
@@ -624,8 +766,14 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
           </div>
 
           <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">Proper Form Tutorial</h2>
-            <video controls src={bicep} className="w-full rounded-lg shadow-md aspect-video" />
+            <h2 className="text-2xl font-bold text-[#333333] dark:text-gray-200 mb-4">
+              Proper Form Tutorial
+            </h2>
+            <video
+              controls
+              src={bicep}
+              className="w-full rounded-lg shadow-md aspect-video"
+            />
           </div>
         </div>
       </div>
@@ -635,7 +783,13 @@ const ExercisePose = ({ showChatApp, sessionCode }) => {
   );
 };
 
-const ControlButton = ({ onClick, disabled, visible = true, colors, label }) => (
+const ControlButton = ({
+  onClick,
+  disabled,
+  visible = true,
+  colors,
+  label,
+}) => (
   <button
     onClick={onClick}
     disabled={disabled}
@@ -645,6 +799,16 @@ const ControlButton = ({ onClick, disabled, visible = true, colors, label }) => 
   >
     {label}
   </button>
+);
+
+const StatCard = ({ label, value, icon }) => (
+  <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-neutral-700 rounded-lg shadow p-4 min-w-[110px]">
+    <span className="text-2xl mb-1">{icon}</span>
+    <span className="text-sm text-[#555555] dark:text-gray-400">{label}</span>
+    <span className="text-xl font-bold text-[#333333] dark:text-gray-100 mt-1">
+      {value}
+    </span>
+  </div>
 );
 
 export default ExercisePose;
